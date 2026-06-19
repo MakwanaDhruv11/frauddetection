@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudShield Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --glass-bg: rgba(15, 23, 42, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --sidebar-bg: rgba(2, 6, 23, 0.7);
+            --sidebar-text: #94a3b8;
+            --sidebar-hover: rgba(255, 255, 255, 0.05);
+            --sidebar-active: #3b82f6;
+            --bg-gradient: radial-gradient(circle at top left, #0f172a, #020617 100%);
+            --surface: rgba(15, 23, 42, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* UTILS */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .grid { display: grid; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-glass);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(30, 41, 59, 0.8);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); transform: translateY(-2px); }
+        .btn:active { transform: translateY(1px); }
+        .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text-main); box-shadow: none; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); box-shadow: none; }
+        
+        .badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border);
+        }
+        .badge.success { background: var(--success-bg); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .badge.warning { background: var(--warning-bg); color: var(--warning); border-color: rgba(245, 158, 11, 0.3); }
+        .badge.danger { background: var(--danger-bg); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+
+        .input-group { margin-bottom: 1rem; }
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .input-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .input-group select option { background: #0f172a; color: white; }
+
+        /* LOADING SPINNER */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: #3b82f6;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* VIEWS */
+        .view-container { display: none; min-height: 100vh; }
+        .view-container.active { display: flex; }
+
+        /* LOGIN PAGE */
+        #login-view, #register-view {
+            align-items: center; justify-content: center; background: transparent;
+        }
+        .login-card {
+            background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            padding: 2.5rem; border-radius: var(--radius-lg); width: 100%; max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; border: 1px solid var(--border);
+            position: relative; overflow: hidden;
+        }
+        .login-card h1 { font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 700; }
+        .login-card p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
+
+        /* MAIN APP SHELL */
+        #app-view { width: 100%; flex-direction: column; }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px; background: var(--sidebar-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            color: var(--sidebar-text); position: fixed; height: 100vh; left: 0; top: 0;
+            display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50; border-right: 1px solid var(--border);
+        }
+        .sidebar-brand {
+            padding: 2rem 1.5rem; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center;
+            gap: 0.75rem; border-bottom: 1px solid var(--border); color: white; letter-spacing: -0.5px;
+        }
+        .sidebar-brand svg { width: 28px; height: 28px; color: #3b82f6; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
+        .sidebar-nav { padding: 1.5rem 0; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item {
+            padding: 0.875rem 1.5rem; margin: 0 1rem; border-radius: var(--radius-sm); display: flex;
+            align-items: center; gap: 0.875rem; color: var(--sidebar-text); text-decoration: none;
+            transition: all 0.3s ease; cursor: pointer; font-weight: 500; font-size: 0.95rem;
+        }
+        .nav-item:hover { background: var(--sidebar-hover); color: white; transform: translateX(4px); }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent); color: white;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        /* HEADER */
+        .main-content { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+        .header {
+            background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(12px); padding: 1.25rem 2.5rem;
+            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 40;
+        }
+        .header-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+        .header-user { display: flex; align-items: center; gap: 1.5rem; }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; }
+        .avatar {
+            width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;
+            font-size: 1.1rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .hamburger { display: none; background: none; border: none; cursor: pointer; font-size: 1.75rem; color: white; }
+
+        /* CONTENT PAGES */
+        .page-content { padding: 2.5rem; flex: 1; display: none; }
+        .page-content.active { display: block; animation: slideUp 0.4s ease forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DASHBOARD GRID */
+        .stats-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .stat-card::after {
+            content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px;
+            background: rgba(255,255,255,0.03); border-radius: 50%;
+        }
+        .stat-label { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;}
+        .stat-value { font-size: 2.25rem; font-weight: 800; color: white; }
+        .stat-value.red { color: #fca5a5; text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+        .stat-value.yellow { color: #fde047; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+
+        .two-col-grid { grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; }
+        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem; color: white; display: flex; align-items: center; gap: 0.5rem;}
+        .section-title::before { content: ''; display: inline-block; width: 4px; height: 18px; background: #3b82f6; border-radius: 2px; }
+
+        /* PURE CSS BAR CHART */
+        .chart-container { display: flex; align-items: flex-end; height: 220px; gap: 1rem; padding-top: 1rem; border-bottom: 1px solid var(--border); }
+        .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+        .bar { width: 100%; background: linear-gradient(180deg, rgba(59, 130, 246, 0.8) 0%, rgba(59, 130, 246, 0.2) 100%); border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); min-height: 5px; border: 1px solid rgba(59, 130, 246, 0.5); border-bottom: none; }
+        .bar:hover { background: linear-gradient(180deg, rgba(96, 165, 250, 0.8) 0%, rgba(96, 165, 250, 0.2) 100%); border-color: rgba(96, 165, 250, 0.5); }
+        .bar-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        /* RISK BARS */
+        .risk-item { margin-bottom: 1.25rem; }
+        .risk-header { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 500;}
+        .progress-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+        .progress-fill { height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 999px; }
+        .fill-red { background: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .fill-yellow { background: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5); }
+        .fill-green { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5); }
+
+        /* TABLE */
+        .table-container { overflow-x: auto; border-radius: var(--radius-sm); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        th { background: rgba(0,0,0,0.3); font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; border-bottom: 2px solid rgba(255,255,255,0.1); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.03); cursor: pointer; }
+        .clickable-row { transition: background 0.3s; }
+
+        /* FILTER & SEARCH */
+        .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; align-items: center; background: var(--surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); }
+        .filter-btns { display: flex; gap: 0.5rem; flex-wrap: wrap;}
+        .filter-btn { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.875rem; cursor: pointer; font-weight: 600; transition: all 0.3s; color: var(--text-muted);}
+        .filter-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.3); }
+        .search-input { padding: 0.6rem 1.25rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.875rem; width: 300px; background: rgba(0,0,0,0.3); color: white; transition: all 0.3s;}
+        .search-input:focus { width: 350px; background: rgba(0,0,0,0.5); border-color: #3b82f6; outline: none;}
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+            z-index: 100; display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border); padding: 2.5rem; border-radius: var(--radius-lg);
+            width: 100%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); position: relative;
+            transform: scale(0.95); animation: modalPop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes modalPop { to { transform: scale(1); } }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.05); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+        .modal-close:hover { background: #ef4444; color: white; transform: rotate(90deg); }
+        .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:0.5rem;}
+        .modal-title::before { content:''; width:8px; height:8px; border-radius:50%; background:#3b82f6; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.95rem; padding-bottom: 0.75rem; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .detail-label { color: var(--text-muted); font-weight: 500; }
+        .detail-value { font-weight: 600; text-align: right; color: white;}
+        .reasons-list { margin-top: 1.5rem; padding: 1.25rem; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: var(--radius-sm); color: #fca5a5; font-size: 0.9rem; }
+        .reasons-list ul { margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;}
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) { .two-col-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); background: rgba(2, 6, 23, 0.98); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hamburger { display: block; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .header { padding: 1rem 1.5rem; }
+            .page-content { padding: 1.5rem; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .search-input { width: 100%; }
+            .search-input:focus { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER -->
+    <div id="loader" class="hidden">
+        <div class="spinner"></div>
+        <p style="font-weight:500; color:var(--text-muted);">Processing...</p>
+    </div>
+
+    <canvas id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background: transparent; display: none;"></canvas>
+
+    <div id="app">
+        <!-- LOGIN VIEW -->
+        <div id="login-view" class="view-container active">
+            <div class="login-card">
+                <div style="display:flex; justify-content:center; margin-bottom: 1rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h1>FraudShield</h1>
+                <p>Sign in to access your fraud dashboard</p>
+                <div id="login-error">Invalid credentials. Please try again.</div>
+                <div id="login-success" style="color:var(--success); font-size:0.875rem; margin-bottom:1rem; display:none;">Registration successful! Please login.</div>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="login-user" required placeholder="e.g. testuser">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-pass" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.875rem;">Login to Dashboard</button>
+                    <div style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                        Don't have an account? <a href="#" onclick="switchView('register-view'); return false;" style="color:var(--primary); font-weight:500;">Register here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- REGISTER VIEW -->
+        <div id="register-view" class="view-container" style="align-items: center; justify-content: center; background: transparent;">
+            <div class="login-card">
+                <div style="display:flex; justify-content:center; margin-bottom: 1rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5c-1.1 0-2 .9-2 2v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </div>
+                <h1>Create Account</h1>
+                <p>Register to start analyzing transactions</p>
+                <div id="register-error" style="color:var(--danger); font-size:0.875rem; margin-bottom:1rem; display:none;">Error registering account.</div>
+                <form id="register-form">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="reg-user" required placeholder="e.g. newuser">
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="reg-email" required placeholder="user@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="reg-phone" required placeholder="e.g. 9876543210">
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="reg-pass" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.875rem;">Register Account</button>
+                    <div style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                        Already have an account? <a href="#" onclick="switchView('login-view'); return false;" style="color:var(--primary); font-weight:500;">Login here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MAIN APP SHELL -->
+        <div id="app-view" class="view-container">
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-brand">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    FraudShield
+                </div>
+                <nav class="sidebar-nav">
+                    <a class="nav-item active" data-target="dashboard-page">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        Dashboard
+                    </a>
+                    <a class="nav-item" data-target="transactions-page">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        Transactions
+                    </a>
+                    <a class="nav-item" data-target="submit-page">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                        Test Engine
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+                <header class="header">
+                    <div style="display:flex; align-items:center; gap: 1rem;">
+                        <button class="hamburger" id="sidebar-toggle">☰</button>
+                        <h2 class="header-title" id="current-page-title">Dashboard</h2>
+                    </div>
+                    <div class="header-user">
+                        <div class="user-info">
+                            <div class="avatar" id="user-avatar">U</div>
+                            <span id="user-name-display">User</span>
+                        </div>
+                        <button class="btn btn-outline" id="logout-btn" style="padding: 0.5rem 1rem;">Logout</button>
+                    </div>
+                </header>
+
+                <!-- DASHBOARD PAGE -->
+                <div id="dashboard-page" class="page-content active">
+                    <div class="grid stats-grid">
+                        <div class="card stat-card">
+                            <div class="stat-label">Total Transactions</div>
+                            <div class="stat-value" id="stat-total">0</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-label">Fraud Detected</div>
+                            <div class="stat-value red" id="stat-fraud">0</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-label">Flagged (Review)</div>
+                            <div class="stat-value yellow" id="stat-flagged">0</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-label">Avg Risk Score</div>
+                            <div class="stat-value" id="stat-avg-risk">0.0</div>
+                        </div>
+                    </div>
+
+                    <div class="grid two-col-grid">
+                        <div class="card">
+                            <h3 class="section-title">Transactions by Type</h3>
+                            <div class="chart-container" id="type-chart">
+                                <!-- Bars injected by JS -->
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 class="section-title">Top 5 Risky Transactions</h3>
+                            <div id="risk-list">
+                                <!-- Risk items injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="section-title" style="margin:0;">Recent Transactions</h3>
+                            <button class="btn btn-outline" style="padding:0.5rem 1rem;" onclick="navigateTo('transactions-page')">View All</button>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Amount</th>
+                                        <th>Type</th>
+                                        <th>Risk Score</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-table-body">
+                                    <!-- Rows injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRANSACTIONS PAGE -->
+                <div id="transactions-page" class="page-content">
+                    <div class="card">
+                        <div class="toolbar">
+                            <div class="filter-btns">
+                                <button class="filter-btn active" data-filter="ALL">All</button>
+                                <button class="filter-btn" data-filter="APPROVED">Approved</button>
+                                <button class="filter-btn" data-filter="FLAGGED">Flagged</button>
+                                <button class="filter-btn" data-filter="FRAUD">Fraud</button>
+                            </div>
+                            <input type="text" class="search-input" id="tx-search" placeholder="Search by ID or Merchant...">
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Amount</th>
+                                        <th>Type</th>
+                                        <th>Merchant</th>
+                                        <th>Risk Score</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="full-table-body">
+                                    <!-- Rows injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT PAGE -->
+                <div id="submit-page" class="page-content">
+                    <div class="grid two-col-grid">
+                        <div class="card">
+                            <h3 class="section-title">Test Fraud Engine</h3>
+                            <form id="submit-tx-form">
+                                <div class="grid two-col-grid" style="gap:1rem; margin-bottom:0;">
+                                    <div class="input-group">
+                                        <label>Amount (₹)*</label>
+                                        <input type="number" id="tx-amount" required min="1" step="0.01" value="1000">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Transaction Type*</label>
+                                        <select id="tx-type" required>
+                                            <option value="PAYMENT">Payment</option>
+                                            <option value="TRANSFER">Transfer</option>
+                                            <option value="WITHDRAWAL">Withdrawal</option>
+                                            <option value="DEPOSIT">Deposit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Merchant Name</label>
+                                    <input type="text" id="tx-merchant" placeholder="e.g. Amazon">
+                                </div>
+                                <div class="input-group">
+                                    <label>Location</label>
+                                    <input type="text" id="tx-location" placeholder="e.g. New York, VPN, Unknown">
+                                </div>
+                                <div class="grid two-col-grid" style="gap:1rem; margin-bottom:0;">
+                                    <div class="input-group">
+                                        <label>IP Address</label>
+                                        <input type="text" id="tx-ip" placeholder="e.g. 192.168.1.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Device ID</label>
+                                        <input type="text" id="tx-device" placeholder="e.g. dev_12345">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn" style="width:100%; margin-top:1rem;">Analyze Transaction</button>
+                            </form>
+                        </div>
+
+                        <div class="card" id="result-card" style="display:none; transition: background 0.3s;">
+                            <h3 class="section-title">Analysis Result</h3>
+                            <div style="text-align:center; margin: 2rem 0;">
+                                <div style="font-size: 3rem; font-weight:800; line-height:1;" id="result-score">0</div>
+                                <div style="font-size:0.875rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem;">Risk Score</div>
+                                
+                                <div class="progress-bg" style="max-width:200px; margin: 0 auto 1.5rem;">
+                                    <div class="progress-fill" id="result-meter" style="width: 0%;"></div>
+                                </div>
+                                
+                                <span class="badge" id="result-status" style="font-size:1rem; padding: 0.5rem 1rem;">STATUS</span>
+                            </div>
+                            
+                            <div id="result-reasons-container" class="hidden">
+                                <h4 style="font-size:0.875rem; margin-bottom:0.5rem;">Flags Triggered:</h4>
+                                <div class="reasons-list">
+                                    <ul id="result-reasons"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="tx-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <h3 class="modal-title">Transaction Details</h3>
+            
+            <div class="detail-row">
+                <span class="detail-label">Transaction ID</span>
+                <span class="detail-value" id="md-id" style="font-family:monospace; font-size:0.75rem;"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Amount</span>
+                <span class="detail-value" id="md-amount"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value" id="md-type"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Merchant</span>
+                <span class="detail-value" id="md-merchant"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Time</span>
+                <span class="detail-value" id="md-time"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Risk Score</span>
+                <span class="detail-value">
+                    <span class="badge" id="md-score"></span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">
+                    <span class="badge" id="md-status"></span>
+                </span>
+            </div>
+            
+            <div id="md-reasons-container" class="hidden">
+                <h4 style="font-size:0.875rem; margin-top:1.5rem; margin-bottom:0.5rem;">Fraud Reasons</h4>
+                <div class="reasons-list">
+                    <ul id="md-reasons"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIG
+        const API_URL = 'http://127.0.0.1:8000/api';
+        
+        // STATE
+        let globalTransactions = [];
+        let currentFilter = 'ALL';
+        
+        // UTILS
+        const showLoader = () => document.getElementById('loader').classList.remove('hidden');
+        const hideLoader = () => document.getElementById('loader').classList.add('hidden');
+        const formatMoney = (amount) => `₹${parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+        const formatDate = (ds) => new Date(ds).toLocaleString();
+        const getToken = () => localStorage.getItem('fraud_access_token');
+        const getRiskColorClass = (score) => score >= 70 ? 'danger' : (score >= 40 ? 'warning' : 'success');
+        const getRiskFillClass = (score) => score >= 70 ? 'fill-red' : (score >= 40 ? 'fill-yellow' : 'fill-green');
+
+        // API FETCH WRAPPER
+        async function apiFetch(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+            
+            if (response.status === 401) {
+                logout();
+                throw new Error("Unauthorized");
+            }
+            
+            const data = await response.json();
+            if (!response.ok) throw { status: response.status, data };
+            return data;
+        }
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            if (getToken()) {
+                document.getElementById('user-name-display').textContent = localStorage.getItem('fraud_username') || 'User';
+                document.getElementById('user-avatar').textContent = (localStorage.getItem('fraud_username') || 'U').charAt(0).toUpperCase();
+                switchView('app-view');
+                loadDashboardData();
+            } else {
+                switchView('login-view');
+            }
+            setupEventListeners();
+        });
+
+        // VIEW NAVIGATION
+        function switchView(viewId) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            // Toggle particle canvas visibility
+            const canvas = document.getElementById('particleCanvas');
+            if (canvas) {
+                if (viewId === 'login-view' || viewId === 'register-view') {
+                    canvas.style.display = 'block';
+                } else {
+                    canvas.style.display = 'none';
+                }
+            }
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            const navItem = document.querySelector(`.nav-item[data-target="${pageId}"]`);
+            if (navItem) navItem.classList.add('active');
+            
+            document.getElementById('current-page-title').textContent = navItem ? navItem.textContent.trim() : 'Dashboard';
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+
+            if (pageId === 'dashboard-page') loadDashboardData();
+            if (pageId === 'transactions-page') loadTransactionsPage();
+            if (pageId === 'submit-page') resetSubmitForm();
+        }
+
+        // EVENT LISTENERS
+        function setupEventListeners() {
+            // Registration
+            document.getElementById('register-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showLoader();
+                document.getElementById('register-error').style.display = 'none';
+                try {
+                    const payload = {
+                        username: document.getElementById('reg-user').value,
+                        email: document.getElementById('reg-email').value,
+                        phone_number: document.getElementById('reg-phone').value,
+                        password: document.getElementById('reg-pass').value
+                    };
+                    
+                    const res = await fetch(`${API_URL}/auth/register/`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (!res.ok) {
+                        let errMsg = "Error registering account.";
+                        if (data && typeof data === 'object') {
+                            const errs = [];
+                            Object.keys(data).forEach(key => {
+                                let msg = data[key];
+                                if(Array.isArray(msg)) msg = msg.join(' ');
+                                errs.push(`${key}: ${msg}`);
+                            });
+                            if (errs.length) errMsg = errs.join(' | ');
+                        }
+                        throw new Error(errMsg);
+                    }
+                    
+                    document.getElementById('register-form').reset();
+                    switchView('login-view');
+                    document.getElementById('login-success').style.display = 'block';
+                    
+                } catch (err) {
+                    const errEl = document.getElementById('register-error');
+                    errEl.textContent = err.message || "Error registering account.";
+                    errEl.style.display = 'block';
+                } finally {
+                    hideLoader();
+                }
+            });
+
+            // Login
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showLoader();
+                document.getElementById('login-error').style.display = 'none';
+                try {
+                    const username = document.getElementById('login-user').value;
+                    const res = await fetch(`${API_URL}/auth/token/`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            username: username,
+                            password: document.getElementById('login-pass').value
+                        })
+                    });
+                    if (!res.ok) throw new Error("Invalid credentials");
+                    const data = await res.json();
+                    localStorage.setItem('fraud_access_token', data.access);
+                    localStorage.setItem('fraud_username', username);
+                    
+                    document.getElementById('user-name-display').textContent = username;
+                    document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
+                    
+                    document.getElementById('login-pass').value = '';
+                    switchView('app-view');
+                    loadDashboardData();
+                } catch (err) {
+                    document.getElementById('login-error').style.display = 'block';
+                } finally {
+                    hideLoader();
+                }
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // Nav Clicks
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => navigateTo(item.dataset.target));
+            });
+
+            // Mobile menu
+            document.getElementById('sidebar-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('open');
+            });
+
+            // Modal close
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('tx-modal').classList.remove('active');
+            });
+
+            // Transactions filters & search
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    renderTransactionsTable();
+                });
+            });
+            document.getElementById('tx-search').addEventListener('input', renderTransactionsTable);
+
+            // Submit Test Transaction
+            document.getElementById('submit-tx-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showLoader();
+                try {
+                    const payload = {
+                        amount: document.getElementById('tx-amount').value,
+                        transaction_type: document.getElementById('tx-type').value,
+                        merchant_name: document.getElementById('tx-merchant').value,
+                        location: document.getElementById('tx-location').value,
+                        ip_address: document.getElementById('tx-ip').value,
+                        device_id: document.getElementById('tx-device').value,
+                    };
+                    
+                    // Remove empty optional fields
+                    Object.keys(payload).forEach(k => { if(!payload[k]) delete payload[k]; });
+
+                    const result = await apiFetch('/transactions/create/', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    displaySubmitResult(result);
+                } catch (err) {
+                    alert('Error creating transaction: ' + (err.data ? JSON.stringify(err.data) : err.message));
+                } finally {
+                    hideLoader();
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('fraud_access_token');
+            localStorage.removeItem('fraud_username');
+            switchView('login-view');
+        }
+
+        // DASHBOARD DATA FETCH
+        async function loadDashboardData() {
+            showLoader();
+            try {
+                const [stats, txs] = await Promise.all([
+                    apiFetch('/stats/'),
+                    apiFetch('/transactions/')
+                ]);
+                
+                // Update stats
+                document.getElementById('stat-total').textContent = stats.total_transactions;
+                document.getElementById('stat-fraud').textContent = stats.total_fraud;
+                document.getElementById('stat-flagged').textContent = stats.total_flagged;
+                document.getElementById('stat-avg-risk').textContent = stats.average_risk_score;
+
+                globalTransactions = txs;
+
+                renderRecentTransactions(txs.slice(0, 5));
+                renderTypeChart(txs);
+                renderTopRisky(txs);
+
+            } catch (err) {
+                console.error(err);
+            } finally {
+                hideLoader();
+            }
+        }
+
+        // TRANSACTIONS PAGE FETCH
+        async function loadTransactionsPage() {
+            showLoader();
+            try {
+                globalTransactions = await apiFetch('/transactions/');
+                renderTransactionsTable();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                hideLoader();
+            }
+        }
+
+        // RENDERING
+        function renderRecentTransactions(txs) {
+            const tbody = document.getElementById('recent-table-body');
+            tbody.innerHTML = '';
+            
+            if(txs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">No recent transactions</td></tr>';
+                return;
+            }
+
+            txs.forEach(tx => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.onclick = () => showModal(tx);
+                
+                const scoreClass = getRiskColorClass(tx.risk_score);
+                const statusClass = tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger');
+
+                tr.innerHTML = `
+                    <td style="font-family:monospace; font-size:0.75rem">${tx.transaction_id.substring(0,8)}...</td>
+                    <td style="font-weight:600;">${formatMoney(tx.amount)}</td>
+                    <td>${tx.transaction_type}</td>
+                    <td><span class="badge ${scoreClass}">${tx.risk_score}</span></td>
+                    <td><span class="badge ${statusClass}">${tx.status}</span></td>
+                    <td style="color:var(--text-muted)">${new Date(tx.created_at).toLocaleDateString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTransactionsTable() {
+            const tbody = document.getElementById('full-table-body');
+            const searchStr = document.getElementById('tx-search').value.toLowerCase();
+            
+            let filtered = globalTransactions;
+            
+            // Filter by type
+            if (currentFilter === 'APPROVED') filtered = filtered.filter(t => t.status === 'APPROVED');
+            if (currentFilter === 'FLAGGED') filtered = filtered.filter(t => t.status === 'FLAGGED' && !t.is_fraud);
+            if (currentFilter === 'FRAUD') filtered = filtered.filter(t => t.is_fraud);
+            
+            // Filter by search
+            if (searchStr) {
+                filtered = filtered.filter(t => 
+                    t.transaction_id.toLowerCase().includes(searchStr) || 
+                    (t.merchant_name && t.merchant_name.toLowerCase().includes(searchStr))
+                );
+            }
+
+            tbody.innerHTML = '';
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem; color:var(--text-muted)">No transactions found matching criteria</td></tr>';
+                return;
+            }
+
+            filtered.forEach(tx => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+                tr.onclick = () => showModal(tx);
+                
+                const scoreClass = getRiskColorClass(tx.risk_score);
+                const statusClass = tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger');
+
+                tr.innerHTML = `
+                    <td style="font-family:monospace; font-size:0.75rem">${tx.transaction_id.substring(0,8)}...</td>
+                    <td style="font-weight:600;">${formatMoney(tx.amount)}</td>
+                    <td>${tx.transaction_type}</td>
+                    <td>${tx.merchant_name || '-'}</td>
+                    <td><span class="badge ${scoreClass}">${tx.risk_score}</span></td>
+                    <td><span class="badge ${statusClass}">${tx.status}</span></td>
+                    <td style="color:var(--text-muted); font-size:0.75rem;">${formatDate(tx.created_at)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTypeChart(txs) {
+            const container = document.getElementById('type-chart');
+            container.innerHTML = '';
+            
+            const types = { 'PAYMENT': 0, 'TRANSFER': 0, 'WITHDRAWAL': 0, 'DEPOSIT': 0 };
+            txs.forEach(t => { if(types[t.transaction_type] !== undefined) types[t.transaction_type]++; });
+            
+            const max = Math.max(...Object.values(types), 1); // Avoid div by 0
+            
+            Object.keys(types).forEach(type => {
+                const heightPct = (types[type] / max) * 100;
+                container.innerHTML += `
+                    <div class="bar-wrapper">
+                        <div style="font-size:0.75rem; font-weight:600; margin-bottom:4px;">${types[type]}</div>
+                        <div class="bar" style="height: ${heightPct}%;"></div>
+                        <div class="bar-label">${type.substring(0,3)}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTopRisky(txs) {
+            const container = document.getElementById('risk-list');
+            container.innerHTML = '';
+            
+            const risky = [...txs].sort((a, b) => b.risk_score - a.risk_score).slice(0, 5);
+            
+            if(risky.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:1rem;">No transactions yet</div>';
+                return;
+            }
+
+            risky.forEach(tx => {
+                const fillClass = getRiskFillClass(tx.risk_score);
+                container.innerHTML += `
+                    <div class="risk-item" onclick="showModal(${JSON.stringify(tx).replace(/"/g, '&quot;')})" style="cursor:pointer">
+                        <div class="risk-header">
+                            <span>${formatMoney(tx.amount)} <span style="color:var(--text-muted); font-size:0.75rem; font-family:monospace">(${tx.transaction_id.substring(0,8)})</span></span>
+                            <span style="font-weight:600">${tx.risk_score}/100</span>
+                        </div>
+                        <div class="progress-bg">
+                            <div class="progress-fill ${fillClass}" style="width: ${tx.risk_score}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // MODAL
+        function showModal(tx) {
+            document.getElementById('md-id').textContent = tx.transaction_id;
+            document.getElementById('md-amount').textContent = formatMoney(tx.amount);
+            document.getElementById('md-type').textContent = tx.transaction_type;
+            document.getElementById('md-merchant').textContent = tx.merchant_name || 'N/A';
+            document.getElementById('md-time').textContent = tx.created_at ? formatDate(tx.created_at) : 'Just now';
+            
+            const scoreEl = document.getElementById('md-score');
+            scoreEl.textContent = tx.risk_score;
+            scoreEl.className = `badge ${getRiskColorClass(tx.risk_score)}`;
+            
+            const statusEl = document.getElementById('md-status');
+            statusEl.textContent = tx.status;
+            statusEl.className = `badge ${tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger')}`;
+
+            const reasonsContainer = document.getElementById('md-reasons-container');
+            const reasonsList = document.getElementById('md-reasons');
+            
+            if (tx.fraud_reasons && tx.fraud_reasons.length > 0) {
+                reasonsContainer.classList.remove('hidden');
+                reasonsList.innerHTML = tx.fraud_reasons.map(r => `<li>${r}</li>`).join('');
+            } else {
+                reasonsContainer.classList.add('hidden');
+            }
+
+            document.getElementById('tx-modal').classList.add('active');
+        }
+
+        // SUBMIT ENGINE TEST
+        function resetSubmitForm() {
+            document.getElementById('submit-tx-form').reset();
+            document.getElementById('result-card').style.display = 'none';
+        }
+
+        function displaySubmitResult(result) {
+            const card = document.getElementById('result-card');
+            card.style.display = 'block';
+            
+            document.getElementById('result-score').textContent = result.risk_score;
+            
+            const meter = document.getElementById('result-meter');
+            meter.style.width = '0%';
+            setTimeout(() => { meter.style.width = `${result.risk_score}%`; }, 100);
+            
+            meter.className = `progress-fill ${getRiskFillClass(result.risk_score)}`;
+            
+            const statusBadge = document.getElementById('result-status');
+            statusBadge.textContent = result.status;
+            statusBadge.className = `badge ${result.status === 'APPROVED' ? 'success' : (result.status === 'FLAGGED' && !result.is_fraud ? 'warning' : 'danger')}`;
+
+            // Color card background subtly
+            if (result.is_fraud || result.risk_score >= 70) {
+                card.style.backgroundColor = 'var(--danger-bg)';
+                card.style.borderColor = 'var(--danger)';
+            } else if (result.risk_score >= 40) {
+                card.style.backgroundColor = 'var(--warning-bg)';
+                card.style.borderColor = 'var(--warning)';
+            } else {
+                card.style.backgroundColor = 'var(--success-bg)';
+                card.style.borderColor = 'var(--success)';
+            }
+
+            const reasonsCont = document.getElementById('result-reasons-container');
+            if (result.fraud_reasons && result.fraud_reasons.length > 0) {
+                reasonsCont.classList.remove('hidden');
+                document.getElementById('result-reasons').innerHTML = result.fraud_reasons.map(r => `<li>${r}</li>`).join('');
+            } else {
+                reasonsCont.classList.add('hidden');
+            }
+        }
+
+        // PARTICLE BACKGROUND
+        const particleCanvas = document.getElementById('particleCanvas');
+        if (particleCanvas) {
+            const ctx = particleCanvas.getContext('2d');
+            let particles = [];
+            const particleCount = 100;
+
+            let mouse = {
+                x: null,
+                y: null,
+                radius: 120
+            };
+
+            window.addEventListener('mousemove', function(event) {
+                mouse.x = event.clientX;
+                mouse.y = event.clientY;
+            });
+            
+            window.addEventListener('mouseout', function() {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            window.addEventListener('click', function(event) {
+                if (particleCanvas.style.display !== 'none') {
+                    for (let i = 0; i < 10; i++) {
+                        let p = new Particle(event.clientX, event.clientY);
+                        p.vx = (Math.random() - 0.5) * 8;
+                        p.vy = (Math.random() - 0.5) * 8;
+                        particles.push(p);
+                    }
+                    if (particles.length > 200) {
+                        particles.splice(0, particles.length - 200);
+                    }
+                }
+            });
+
+            function resizeCanvas() {
+                particleCanvas.width = window.innerWidth;
+                particleCanvas.height = window.innerHeight;
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Particle {
+                constructor(x, y) {
+                    this.x = x !== undefined ? x : Math.random() * particleCanvas.width;
+                    this.y = y !== undefined ? y : Math.random() * particleCanvas.height;
+                    this.size = Math.random() * 2 + 2; // 2px to 4px
+                    this.baseSpeedX = (Math.random() - 0.5) * 1.5;
+                    this.baseSpeedY = (Math.random() - 0.5) * 1.5;
+                    this.vx = this.baseSpeedX;
+                    this.vy = this.baseSpeedY;
+                    this.opacity = Math.random() * 0.5 + 0.1;
+                    this.fadeSpeed = Math.random() * 0.005 + 0.001;
+                    this.fadeDirection = Math.random() > 0.5 ? 1 : -1;
+                }
+                update() {
+                    // Mouse repel logic
+                    if (mouse.x != null && mouse.y != null) {
+                        const dx = this.x - mouse.x;
+                        const dy = this.y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < mouse.radius) {
+                            const force = (mouse.radius - dist) / mouse.radius;
+                            // run away from cursor
+                            this.vx += (dx / dist) * force * 0.6;
+                            this.vy += (dy / dist) * force * 0.6;
+                        }
+                    }
+
+                    // Return slowly to normal drift (friction)
+                    this.vx += (this.baseSpeedX - this.vx) * 0.05;
+                    this.vy += (this.baseSpeedY - this.vy) * 0.05;
+
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    
+                    // Bounce off screen edges
+                    if (this.x < 0 || this.x > particleCanvas.width) {
+                        this.baseSpeedX *= -1;
+                        this.vx *= -1;
+                        this.x = Math.max(0, Math.min(this.x, particleCanvas.width));
+                    }
+                    if (this.y < 0 || this.y > particleCanvas.height) {
+                        this.baseSpeedY *= -1;
+                        this.vy *= -1;
+                        this.y = Math.max(0, Math.min(this.y, particleCanvas.height));
+                    }
+                    
+                    // Fade in and out
+                    this.opacity += this.fadeSpeed * this.fadeDirection;
+                    if (this.opacity >= 0.8) this.fadeDirection = -1;
+                    if (this.opacity <= 0.1) this.fadeDirection = 1;
+                }
+                draw() {
+                    let ratio = this.x / particleCanvas.width;
+                    ratio = Math.max(0, Math.min(1, ratio));
+                    // Dark grey/black (#222) on left to red/orange (#ff4500) on right
+                    const r = Math.floor(34 + ratio * (255 - 34));
+                    const g = Math.floor(34 + ratio * (69 - 34));
+                    const b = Math.floor(34 + ratio * (0 - 34));
+
+                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                
+                requestAnimationFrame(animateParticles);
+            }
+
+            initParticles();
+            animateParticles();
+        }
+    </script>
+</body>
+</html>
