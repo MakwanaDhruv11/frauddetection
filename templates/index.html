@@ -3,641 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FraudShield Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>FRAUDSHIELD - SECURITY INTELLIGENCE PLATFORM</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-hover: #60a5fa;
-            --glass-bg: rgba(15, 23, 42, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --sidebar-bg: rgba(2, 6, 23, 0.7);
-            --sidebar-text: #94a3b8;
-            --sidebar-hover: rgba(255, 255, 255, 0.05);
-            --sidebar-active: #3b82f6;
-            --bg-gradient: radial-gradient(circle at top left, #0f172a, #020617 100%);
-            --surface: rgba(15, 23, 42, 0.6);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #050510;
+            --accent-blue: #00d4ff;
+            --accent-purple: #7b2fff;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --glass: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(0, 212, 255, 0.3);
             
-            --success: #10b981;
-            --success-bg: rgba(16, 185, 129, 0.15);
-            --warning: #f59e0b;
-            --warning-bg: rgba(245, 158, 11, 0.15);
-            --danger: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.15);
-            
-            --radius-sm: 8px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
-            
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            --success: #00ff00;
+            --warning: #ffff00;
+            --danger: #ff0000;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
+            background-color: var(--bg);
             color: var(--text-main);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
             min-height: 100vh;
         }
 
         /* UTILS */
         .hidden { display: none !important; }
         .flex { display: flex; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .grid { display: grid; }
-        .gap-4 { gap: 1rem; }
-        .gap-6 { gap: 1.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mt-4 { margin-top: 1rem; }
+        a { color: var(--accent-blue); text-decoration: none; transition: text-shadow 0.3s; }
+        a:hover { text-shadow: 0 0 10px var(--accent-blue); }
+        button { background: none; border: none; cursor: pointer; color: var(--text-main); }
         
-        .card {
-            background: var(--surface);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-glass);
-            padding: 1.5rem;
-            transition: transform 0.3s ease, background 0.3s ease;
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+        /* MOUSE TRAIL */
+        .particle {
+            position: fixed; top: 0; left: 0; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue);
+            pointer-events: none; z-index: 10000; transform: translate(-100px, -100px);
+            transition: opacity 0.3s;
         }
 
-        .card:hover {
-            background: rgba(30, 41, 59, 0.8);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn {
-            background: linear-gradient(90deg, #2563eb, #3b82f6);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn:hover { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); transform: translateY(-2px); }
-        .btn:active { transform: translateY(1px); }
-        .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text-main); box-shadow: none; }
-        .btn-outline:hover { background: rgba(255,255,255,0.1); box-shadow: none; }
-        
-        .badge {
-            padding: 0.35rem 0.85rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--border);
-        }
-        .badge.success { background: var(--success-bg); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
-        .badge.warning { background: var(--warning-bg); color: var(--warning); border-color: rgba(245, 158, 11, 0.3); }
-        .badge.danger { background: var(--danger-bg); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
-
-        .input-group { margin-bottom: 1rem; }
-        .input-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-        }
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        .input-group input::placeholder { color: rgba(255,255,255,0.3); }
-        .input-group select option { background: #0f172a; color: white; }
-
-        /* LOADING SPINNER */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);
-            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .spinner {
-            width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: #3b82f6;
-            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* VIEWS */
-        .view-container { display: none; min-height: 100vh; }
-        .view-container.active { display: flex; }
-
-        /* LOGIN PAGE */
-        #login-view, #register-view {
-            align-items: center; justify-content: center; background: transparent;
-        }
-        .login-card {
-            background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            padding: 2.5rem; border-radius: var(--radius-lg); width: 100%; max-width: 420px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); text-align: center; border: 1px solid var(--border);
-            position: relative; overflow: hidden;
-        }
-        .login-card h1 { font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--text-main); font-weight: 700; }
-        .login-card p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
-
-        /* MAIN APP SHELL */
-        #app-view { width: 100%; flex-direction: column; }
-        
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px; background: var(--sidebar-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            color: var(--sidebar-text); position: fixed; height: 100vh; left: 0; top: 0;
-            display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 50; border-right: 1px solid var(--border);
-        }
-        .sidebar-brand {
-            padding: 2rem 1.5rem; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center;
-            gap: 0.75rem; border-bottom: 1px solid var(--border); color: white; letter-spacing: -0.5px;
-        }
-        .sidebar-brand svg { width: 28px; height: 28px; color: #3b82f6; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
-        .sidebar-nav { padding: 1.5rem 0; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
-        .nav-item {
-            padding: 0.875rem 1.5rem; margin: 0 1rem; border-radius: var(--radius-sm); display: flex;
-            align-items: center; gap: 0.875rem; color: var(--sidebar-text); text-decoration: none;
-            transition: all 0.3s ease; cursor: pointer; font-weight: 500; font-size: 0.95rem;
-        }
-        .nav-item:hover { background: var(--sidebar-hover); color: white; transform: translateX(4px); }
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent); color: white;
-            border-left: 3px solid #3b82f6;
+        /* 3D TILT CARDS & GLASSMORPHISM */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.15);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
         }
         
-        /* HEADER */
-        .main-content { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
-        .header {
-            background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(12px); padding: 1.25rem 2.5rem;
-            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;
-            align-items: center; position: sticky; top: 0; z-index: 40;
+        /* CORNER RETICLES */
+        .reticle::before, .reticle::after, .corner-bl, .corner-br {
+            content: ''; position: absolute; width: 20px; height: 20px; border: 2px solid var(--accent-blue); pointer-events: none;
         }
-        .header-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
-        .header-user { display: flex; align-items: center; gap: 1.5rem; }
-        .user-info { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; font-size: 0.95rem; }
-        .avatar {
-            width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #3b82f6);
-            color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;
-            font-size: 1.1rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        .reticle::before { top: -2px; left: -2px; border-bottom: none; border-right: none; border-top-left-radius: 20px; }
+        .reticle::after { top: -2px; right: -2px; border-bottom: none; border-left: none; border-top-right-radius: 20px;}
+        .corner-bl { bottom: -2px; left: -2px; border-top: none; border-right: none; border-bottom-left-radius: 20px;}
+        .corner-br { bottom: -2px; right: -2px; border-top: none; border-left: none; border-bottom-right-radius: 20px;}
+
+        /* SCANNING LINE */
+        .scanner {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-blue); box-shadow: 0 0 15px 2px var(--accent-blue);
+            animation: scan 3s linear infinite; opacity: 0.6; pointer-events: none; z-index: 5;
         }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 0.6; } 90% { opacity: 0.6; } 100% { top: 100%; opacity: 0; } }
+
+        /* BUTTONS */
+        .btn-glow {
+            width: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            color: #fff; padding: 1.25rem; font-size: 1rem; font-weight: 700; letter-spacing: 2px;
+            border-radius: 8px; border: none; text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .btn-glow:hover { box-shadow: 0 0 40px rgba(123, 47, 255, 0.6); transform: translateY(-2px); }
+        .btn-glow:active { transform: translateY(2px); box-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
         
-        .hamburger { display: none; background: none; border: none; cursor: pointer; font-size: 1.75rem; color: white; }
+        .pulse { animation: pulseAnim 2s infinite; }
+        @keyframes pulseAnim { 0% { box-shadow: 0 0 20px rgba(0,212,255,0.3); } 50% { box-shadow: 0 0 40px rgba(123,47,255,0.6); } 100% { box-shadow: 0 0 20px rgba(0,212,255,0.3); } }
 
-        /* CONTENT PAGES */
-        .page-content { padding: 2.5rem; flex: 1; display: none; }
-        .page-content.active { display: block; animation: slideUp 0.4s ease forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* DASHBOARD GRID */
-        .stats-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
-        .stat-card { display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
-        .stat-card::after {
-            content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px;
-            background: rgba(255,255,255,0.03); border-radius: 50%;
+        /* INPUTS */
+        .hud-input-group { margin-bottom: 2rem; position: relative; width: 100%; }
+        .hud-input-group input, .hud-input-group select {
+            width: 100%; background: rgba(0,0,0,0.4); border: none; border-bottom: 2px solid var(--accent-blue);
+            padding: 1rem; color: #fff; font-size: 1rem; letter-spacing: 1px; outline: none; transition: all 0.3s;
+            border-radius: 4px 4px 0 0; appearance: none;
         }
-        .stat-label { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;}
-        .stat-value { font-size: 2.25rem; font-weight: 800; color: white; }
-        .stat-value.red { color: #fca5a5; text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
-        .stat-value.yellow { color: #fde047; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .hud-input-group select option { background: var(--bg); color: #fff; }
+        .hud-input-group input:focus, .hud-input-group select:focus {
+            border: 1px solid var(--accent-blue); border-bottom: 2px solid var(--accent-blue);
+            box-shadow: inset 0 0 10px rgba(0,212,255,0.2), 0 0 15px rgba(0,212,255,0.3); background: rgba(0,212,255,0.05);
+        }
+        .hud-input-group input::placeholder { color: var(--text-muted); }
 
-        .two-col-grid { grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; }
-        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem; color: white; display: flex; align-items: center; gap: 0.5rem;}
-        .section-title::before { content: ''; display: inline-block; width: 4px; height: 18px; background: #3b82f6; border-radius: 2px; }
+        /* NAV BAR */
+        .hud-nav {
+            display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;
+            background: rgba(5,5,16,0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-link { font-size: 0.875rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); position: relative; padding: 0.5rem 0;}
+        .nav-link.active, .nav-link:hover { color: var(--accent-blue); text-shadow: 0 0 8px var(--accent-blue); }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+            background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue);
+        }
 
-        /* PURE CSS BAR CHART */
-        .chart-container { display: flex; align-items: flex-end; height: 220px; gap: 1rem; padding-top: 1rem; border-bottom: 1px solid var(--border); }
-        .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-        .bar { width: 100%; background: linear-gradient(180deg, rgba(59, 130, 246, 0.8) 0%, rgba(59, 130, 246, 0.2) 100%); border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); min-height: 5px; border: 1px solid rgba(59, 130, 246, 0.5); border-bottom: none; }
-        .bar:hover { background: linear-gradient(180deg, rgba(96, 165, 250, 0.8) 0%, rgba(96, 165, 250, 0.2) 100%); border-color: rgba(96, 165, 250, 0.5); }
-        .bar-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
-
-        /* RISK BARS */
-        .risk-item { margin-bottom: 1.25rem; }
-        .risk-header { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 500;}
-        .progress-bg { width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
-        .progress-fill { height: 100%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 999px; }
-        .fill-red { background: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5); }
-        .fill-yellow { background: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5); }
-        .fill-green { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5); }
-
-        /* TABLE */
-        .table-container { overflow-x: auto; border-radius: var(--radius-sm); }
+        /* TABLES */
+        .hud-table-wrapper { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        th { background: rgba(0,0,0,0.3); font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; border-bottom: 2px solid rgba(255,255,255,0.1); }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.03); cursor: pointer; }
-        .clickable-row { transition: background 0.3s; }
+        th { padding: 1.25rem 1rem; border-bottom: 2px solid var(--border-color); font-size: 0.75rem; letter-spacing: 2px; color: var(--accent-blue); text-transform: uppercase; background: rgba(0,212,255,0.05);}
+        td { padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.875rem; transition: background 0.2s;}
+        tr { transition: box-shadow 0.2s; border-left: 3px solid transparent; }
+        tr:hover { background: rgba(0,212,255,0.05); border-left: 3px solid var(--accent-blue); cursor: pointer; box-shadow: inset 0 0 20px rgba(0,212,255,0.05); }
+        .mono { font-family: monospace; font-size: 1rem; letter-spacing: 1px;}
+        
+        /* STATUS BADGES & BARS */
+        .hud-badge {
+            padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; letter-spacing: 1px;
+            text-transform: uppercase; font-weight: 700; border: 1px solid; display: inline-block;
+            box-shadow: inset 0 0 10px currentColor, 0 0 10px currentColor; text-shadow: 0 0 5px currentColor;
+        }
+        .mini-progress { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; position: relative; overflow: hidden; margin-top: 0.5rem;}
+        .mini-progress-fill { position: absolute; top: 0; left: 0; height: 100%; box-shadow: 0 0 10px currentColor; transition: width 1s ease-out;}
 
-        /* FILTER & SEARCH */
-        .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; align-items: center; background: var(--surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); }
-        .filter-btns { display: flex; gap: 0.5rem; flex-wrap: wrap;}
-        .filter-btn { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.875rem; cursor: pointer; font-weight: 600; transition: all 0.3s; color: var(--text-muted);}
-        .filter-btn:hover { background: rgba(255,255,255,0.05); color: white; }
-        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.3); }
-        .search-input { padding: 0.6rem 1.25rem; border: 1px solid var(--border); border-radius: 999px; font-size: 0.875rem; width: 300px; background: rgba(0,0,0,0.3); color: white; transition: all 0.3s;}
-        .search-input:focus { width: 350px; background: rgba(0,0,0,0.5); border-color: #3b82f6; outline: none;}
+        /* FILTER BUTTONS */
+        .pill-filters { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;}
+        .filter-pill {
+            padding: 0.5rem 1.5rem; border: 1px solid var(--accent-blue); border-radius: 20px;
+            color: var(--accent-blue); font-size: 0.75rem; letter-spacing: 2px; transition: all 0.3s;
+            background: transparent; box-shadow: inset 0 0 5px rgba(0,212,255,0.2);
+        }
+        .filter-pill:hover, .filter-pill.active {
+            background: rgba(0,212,255,0.2); box-shadow: 0 0 15px rgba(0,212,255,0.5), inset 0 0 10px rgba(0,212,255,0.5);
+            text-shadow: 0 0 5px #fff; color: #fff;
+        }
+
+        /* PAGE TRANSITIONS & STAGGER */
+        .view-container { display: none; opacity: 0; transition: opacity 0.5s ease; min-height: 100vh; position: relative;}
+        .view-container.active { display: flex; opacity: 1; flex-direction: column;}
+        .page-content { display: none; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; flex: 1;}
+        .page-content.active { display: block; }
+        
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DASHBOARD CARDS */
+        .stat-card {
+            border-top: 2px solid; border-image: linear-gradient(to right, var(--accent-blue), var(--accent-purple)) 1;
+            padding: 1.5rem; flex: 1; min-width: 200px;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,212,255,0.2); }
+        .stat-icon { font-size: 2rem; margin-bottom: 1rem; text-shadow: 0 0 15px currentColor; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0; letter-spacing: 2px; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
 
         /* MODAL */
+        .hud-modal {
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 500px; height: 100vh;
+            background: rgba(5,5,16,0.95); backdrop-filter: blur(20px); border-left: 1px solid var(--accent-blue);
+            box-shadow: -10px 0 50px rgba(0,212,255,0.2); z-index: 1000; padding: 2rem;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto;
+        }
+        .hud-modal.active { right: 0; }
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-            z-index: 100; display: none; align-items: center; justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+            z-index: 999; display: none; opacity: 0; transition: opacity 0.4s;
         }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .modal-content {
-            background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border); padding: 2.5rem; border-radius: var(--radius-lg);
-            width: 100%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); position: relative;
-            transform: scale(0.95); animation: modalPop 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes modalPop { to { transform: scale(1); } }
-        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.05); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
-        .modal-close:hover { background: #ef4444; color: white; transform: rotate(90deg); }
-        .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:0.5rem;}
-        .modal-title::before { content:''; width:8px; height:8px; border-radius:50%; background:#3b82f6; }
-        .detail-row { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.95rem; padding-bottom: 0.75rem; border-bottom: 1px dashed rgba(255,255,255,0.1); }
-        .detail-label { color: var(--text-muted); font-weight: 500; }
-        .detail-value { font-weight: 600; text-align: right; color: white;}
-        .reasons-list { margin-top: 1.5rem; padding: 1.25rem; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: var(--radius-sm); color: #fca5a5; font-size: 0.9rem; }
-        .reasons-list ul { margin-left: 1.5rem; margin-top: 0.5rem; line-height: 1.8;}
+        .modal-overlay.active { display: block; opacity: 1; }
 
-        /* RESPONSIVE */
-        @media (max-width: 1024px) { .two-col-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); background: rgba(2, 6, 23, 0.98); }
-            .sidebar.open { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .hamburger { display: block; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .header { padding: 1rem 1.5rem; }
-            .page-content { padding: 1.5rem; }
+        /* LOADER */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5,5,16,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .toolbar { flex-direction: column; align-items: stretch; }
-            .search-input { width: 100%; }
-            .search-input:focus { width: 100%; }
+        .hud-spinner { width: 80px; height: 80px; border: 3px solid transparent; border-top-color: var(--accent-blue); border-bottom-color: var(--accent-purple); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 30px rgba(0,212,255,0.3); }
+
+        /* TOAST */
+        #toast-container { position: fixed; top: 2rem; right: 2rem; z-index: 10000; display: flex; flex-direction: column; gap: 1rem; }
+        .toast {
+            background: rgba(0,0,0,0.8); border: 1px solid; padding: 1rem 1.5rem; font-size: 0.875rem; letter-spacing: 1px;
+            display: flex; gap: 1rem; align-items: center; backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px currentColor, inset 0 0 10px currentColor; text-transform: uppercase;
+            opacity: 0; transform: translateX(50px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* LOGIN LAYOUT */
+        #login-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10;}
+        #globeCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.6; }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block !important; }
+            .stat-card { min-width: 100%; }
+            .split-grid { grid-template-columns: 1fr !important; gap: 2rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- MOUSE TRAIL -->
+    <div id="particle-container"></div>
+
+    <!-- TOASTS -->
+    <div id="toast-container"></div>
+
     <!-- LOADER -->
     <div id="loader" class="hidden">
-        <div class="spinner"></div>
-        <p style="font-weight:500; color:var(--text-muted);">Processing...</p>
+        <div class="hud-spinner"></div>
+        <div style="margin-top:2rem; letter-spacing: 4px; color: var(--accent-blue); animation: pulseAnim 2s infinite;">ESTABLISHING CONNECTION...</div>
     </div>
 
-    <canvas id="particleCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background: transparent; display: none;"></canvas>
-
     <div id="app">
-        <!-- LOGIN VIEW -->
-        <div id="login-view" class="view-container active">
-            <div class="login-card">
-                <div style="display:flex; justify-content:center; margin-bottom: 1rem;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
+        <!-- LOGIN / REGISTER BACKGROUND -->
+        <div id="auth-bg" class="view-container active">
+            <canvas id="globeCanvas"></canvas>
+            
+            <div id="login-wrapper">
+                <!-- LOGIN FORM -->
+                <div id="login-view" class="glass-panel reticle tilt-card stagger-element" style="width: 100%; max-width: 450px; padding: 3rem; text-align: center;">
+                    <div class="scanner"></div>
+                    <div class="corner-bl"></div><div class="corner-br"></div>
+                    
+                    <div style="display:inline-flex; align-items:center; justify-content:center; width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-blue); box-shadow: 0 0 20px var(--accent-blue), inset 0 0 15px var(--accent-blue); margin-bottom: 1.5rem;">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    
+                    <h1 style="font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 0.5rem; text-shadow: 0 0 10px #fff;">FRAUDSHIELD</h1>
+                    <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 3rem; text-transform: uppercase;">Security Intelligence Platform</div>
+                    
+                    <form id="login-form">
+                        <div class="hud-input-group stagger-element">
+                            <input type="text" id="login-user" required placeholder="USERNAME">
+                        </div>
+                        <div class="hud-input-group stagger-element">
+                            <input type="password" id="login-pass" required placeholder="PASSWORD">
+                        </div>
+                        <button type="submit" class="btn-glow stagger-element" style="margin-top: 2rem;">INITIALIZE ACCESS</button>
+                    </form>
+                    
+                    <div class="stagger-element" style="margin-top: 2rem; font-size: 0.75rem; letter-spacing: 2px;">
+                        <span style="color:var(--text-muted)">NEW OPERATIVE?</span> <a href="#" onclick="switchAuthView('register'); return false;">REGISTER PROTOCOL</a>
+                    </div>
                 </div>
-                <h1>FraudShield</h1>
-                <p>Sign in to access your fraud dashboard</p>
-                <div id="login-error">Invalid credentials. Please try again.</div>
-                <div id="login-success" style="color:var(--success); font-size:0.875rem; margin-bottom:1rem; display:none;">Registration successful! Please login.</div>
-                <form id="login-form">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="login-user" required placeholder="e.g. testuser">
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="login-pass" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.875rem;">Login to Dashboard</button>
-                    <div style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
-                        Don't have an account? <a href="#" onclick="switchView('register-view'); return false;" style="color:var(--primary); font-weight:500;">Register here</a>
-                    </div>
-                </form>
-            </div>
-        </div>
 
-        <!-- REGISTER VIEW -->
-        <div id="register-view" class="view-container" style="align-items: center; justify-content: center; background: transparent;">
-            <div class="login-card">
-                <div style="display:flex; justify-content:center; margin-bottom: 1rem;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5c-1.1 0-2 .9-2 2v2"></path>
-                        <circle cx="8.5" cy="7" r="4"></circle>
-                        <line x1="20" y1="8" x2="20" y2="14"></line>
-                        <line x1="23" y1="11" x2="17" y2="11"></line>
-                    </svg>
+                <!-- REGISTER FORM -->
+                <div id="register-view" class="glass-panel reticle tilt-card hidden" style="width: 100%; max-width: 450px; padding: 3rem; text-align: center;">
+                    <div class="scanner"></div>
+                    <div class="corner-bl"></div><div class="corner-br"></div>
+                    
+                    <h1 style="font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 0.5rem; text-shadow: 0 0 10px #fff;">ENROLLMENT</h1>
+                    <div style="font-size: 0.65rem; letter-spacing: 4px; color: var(--accent-purple); margin-bottom: 3rem; text-transform: uppercase;">Register New Operative</div>
+                    
+                    <form id="register-form">
+                        <div class="hud-input-group">
+                            <input type="text" id="reg-user" required placeholder="USERNAME">
+                        </div>
+                        <div class="hud-input-group">
+                            <input type="email" id="reg-email" required placeholder="SECURE EMAIL">
+                        </div>
+                        <div class="hud-input-group">
+                            <input type="text" id="reg-phone" required placeholder="COMMS LINK (PHONE)">
+                        </div>
+                        <div class="hud-input-group">
+                            <input type="password" id="reg-pass" required placeholder="ENCRYPTION KEY (PASSWORD)">
+                        </div>
+                        <button type="submit" class="btn-glow" style="margin-top: 1rem;">AUTHORIZE REGISTRATION</button>
+                    </form>
+                    
+                    <div style="margin-top: 2rem; font-size: 0.75rem; letter-spacing: 2px;">
+                        <span style="color:var(--text-muted)">ALREADY CLEARED?</span> <a href="#" onclick="switchAuthView('login'); return false;">RETURN TO LOGIN</a>
+                    </div>
                 </div>
-                <h1>Create Account</h1>
-                <p>Register to start analyzing transactions</p>
-                <div id="register-error" style="color:var(--danger); font-size:0.875rem; margin-bottom:1rem; display:none;">Error registering account.</div>
-                <form id="register-form">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="reg-user" required placeholder="e.g. newuser">
-                    </div>
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" id="reg-email" required placeholder="user@example.com">
-                    </div>
-                    <div class="input-group">
-                        <label>Phone Number</label>
-                        <input type="text" id="reg-phone" required placeholder="e.g. 9876543210">
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="reg-pass" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 0.875rem;">Register Account</button>
-                    <div style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted);">
-                        Already have an account? <a href="#" onclick="switchView('login-view'); return false;" style="color:var(--primary); font-weight:500;">Login here</a>
-                    </div>
-                </form>
             </div>
         </div>
 
         <!-- MAIN APP SHELL -->
         <div id="app-view" class="view-container">
-            <!-- SIDEBAR -->
-            <aside class="sidebar" id="sidebar">
-                <div class="sidebar-brand">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                    FraudShield
+            <!-- TOP NAV -->
+            <nav class="hud-nav stagger-element">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <div style="font-size: 1.25rem; font-weight: 700; letter-spacing: 4px; text-shadow: 0 0 10px var(--accent-blue);">FRAUDSHIELD</div>
                 </div>
-                <nav class="sidebar-nav">
-                    <a class="nav-item active" data-target="dashboard-page">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                        Dashboard
-                    </a>
-                    <a class="nav-item" data-target="transactions-page">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                        Transactions
-                    </a>
-                    <a class="nav-item" data-target="submit-page">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-                        Test Engine
-                    </a>
-                </nav>
-            </aside>
-
-            <!-- MAIN CONTENT -->
-            <main class="main-content">
-                <header class="header">
-                    <div style="display:flex; align-items:center; gap: 1rem;">
-                        <button class="hamburger" id="sidebar-toggle">☰</button>
-                        <h2 class="header-title" id="current-page-title">Dashboard</h2>
+                <div class="nav-links">
+                    <a href="#" class="nav-link active" data-target="dashboard-page">SYSTEM HUB</a>
+                    <a href="#" class="nav-link" data-target="transactions-page">DATA STREAM</a>
+                    <a href="#" class="nav-link" data-target="submit-page">TEST ENGINE</a>
+                    <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 1rem;"></div>
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; letter-spacing:1px; color:var(--accent-blue);">
+                        OP: <span id="user-name-display" style="color:#fff; text-shadow:0 0 5px #fff;">USER</span>
                     </div>
-                    <div class="header-user">
-                        <div class="user-info">
-                            <div class="avatar" id="user-avatar">U</div>
-                            <span id="user-name-display">User</span>
-                        </div>
-                        <button class="btn btn-outline" id="logout-btn" style="padding: 0.5rem 1rem;">Logout</button>
-                    </div>
-                </header>
+                    <button id="logout-btn" style="border: 1px solid var(--accent-purple); padding: 0.25rem 1rem; border-radius: 4px; font-size: 0.75rem; letter-spacing: 2px; color: var(--accent-purple); box-shadow: inset 0 0 10px rgba(123,47,255,0.2); transition:all 0.3s;">ABORT</button>
+                </div>
+                <div class="mobile-menu-btn hidden" style="display:none; cursor:pointer; color:var(--accent-blue);">☰</div>
+            </nav>
 
-                <!-- DASHBOARD PAGE -->
-                <div id="dashboard-page" class="page-content active">
-                    <div class="grid stats-grid">
-                        <div class="card stat-card">
-                            <div class="stat-label">Total Transactions</div>
-                            <div class="stat-value" id="stat-total">0</div>
-                        </div>
-                        <div class="card stat-card">
-                            <div class="stat-label">Fraud Detected</div>
-                            <div class="stat-value red" id="stat-fraud">0</div>
-                        </div>
-                        <div class="card stat-card">
-                            <div class="stat-label">Flagged (Review)</div>
-                            <div class="stat-value yellow" id="stat-flagged">0</div>
-                        </div>
-                        <div class="card stat-card">
-                            <div class="stat-label">Avg Risk Score</div>
-                            <div class="stat-value" id="stat-avg-risk">0.0</div>
-                        </div>
+            <!-- DASHBOARD PAGE -->
+            <div id="dashboard-page" class="page-content active">
+                <div class="flex" style="gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <div class="glass-panel tilt-card stat-card stagger-element">
+                        <div class="stat-icon" style="color: var(--accent-blue);">👁️</div>
+                        <div class="stat-label">TOTAL SCANNED</div>
+                        <div class="stat-value count-up" id="stat-total">0</div>
                     </div>
-
-                    <div class="grid two-col-grid">
-                        <div class="card">
-                            <h3 class="section-title">Transactions by Type</h3>
-                            <div class="chart-container" id="type-chart">
-                                <!-- Bars injected by JS -->
-                            </div>
-                        </div>
-                        <div class="card">
-                            <h3 class="section-title">Top 5 Risky Transactions</h3>
-                            <div id="risk-list">
-                                <!-- Risk items injected by JS -->
-                            </div>
-                        </div>
+                    <div class="glass-panel tilt-card stat-card stagger-element">
+                        <div class="stat-icon" style="color: var(--danger);">⚠</div>
+                        <div class="stat-label">THREATS ISOLATED</div>
+                        <div class="stat-value count-up" id="stat-fraud" style="color: var(--danger);">0</div>
                     </div>
+                    <div class="glass-panel tilt-card stat-card stagger-element">
+                        <div class="stat-icon" style="color: var(--warning);">⚡</div>
+                        <div class="stat-label">ANOMALIES FLAGGED</div>
+                        <div class="stat-value count-up" id="stat-flagged" style="color: var(--warning);">0</div>
+                    </div>
+                    <div class="glass-panel tilt-card stat-card stagger-element">
+                        <div class="stat-icon" style="color: var(--accent-purple);">🎯</div>
+                        <div class="stat-label">AVG THREAT LEVEL</div>
+                        <div class="stat-value count-up" id="stat-avg-risk">0.0</div>
+                    </div>
+                </div>
 
-                    <div class="card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="section-title" style="margin:0;">Recent Transactions</h3>
-                            <button class="btn btn-outline" style="padding:0.5rem 1rem;" onclick="navigateTo('transactions-page')">View All</button>
+                <div class="grid split-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                    <div class="glass-panel reticle tilt-card stagger-element" style="padding: 2rem;">
+                        <div class="corner-bl"></div><div class="corner-br"></div>
+                        <h3 style="font-size: 1rem; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">VECTOR ANALYSIS (TYPE)</h3>
+                        <div id="type-list"></div>
+                    </div>
+                    
+                    <div class="glass-panel reticle tilt-card stagger-element" style="padding: 2rem;">
+                        <div class="corner-bl"></div><div class="corner-br"></div>
+                        <h3 style="font-size: 1rem; letter-spacing: 4px; color: var(--danger); margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 0.5rem;">CRITICAL THREAT TARGETS</h3>
+                        <div id="risk-list"></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel reticle stagger-element" style="padding: 2rem;">
+                    <div class="corner-bl"></div><div class="corner-br"></div>
+                    <h3 style="font-size: 1rem; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 1.5rem;">LIVE DATA STREAM</h3>
+                    <div class="hud-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Signature</th>
+                                    <th>Volume (₹)</th>
+                                    <th>Vector</th>
+                                    <th>Threat Lvl</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRANSACTIONS PAGE -->
+            <div id="transactions-page" class="page-content">
+                <div class="glass-panel reticle stagger-element" style="padding: 2rem; margin-bottom: 2rem;">
+                    <div class="corner-bl"></div><div class="corner-br"></div>
+                    <div class="flex" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div class="pill-filters" style="margin-bottom: 0;">
+                            <button class="filter-pill active" data-filter="ALL">ALL DATA</button>
+                            <button class="filter-pill" data-filter="FRAUD">THREATS</button>
+                            <button class="filter-pill" data-filter="FLAGGED">ANOMALIES</button>
+                            <button class="filter-pill" data-filter="APPROVED">CLEARED</button>
                         </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Amount</th>
-                                        <th>Type</th>
-                                        <th>Risk Score</th>
-                                        <th>Status</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recent-table-body">
-                                    <!-- Rows injected by JS -->
-                                </tbody>
-                            </table>
+                        <div class="hud-input-group" style="width: 300px; margin-bottom: 0;">
+                            <input type="text" id="tx-search" placeholder="QUERY SIGNATURE/ENTITY...">
                         </div>
                     </div>
                 </div>
 
-                <!-- TRANSACTIONS PAGE -->
-                <div id="transactions-page" class="page-content">
-                    <div class="card">
-                        <div class="toolbar">
-                            <div class="filter-btns">
-                                <button class="filter-btn active" data-filter="ALL">All</button>
-                                <button class="filter-btn" data-filter="APPROVED">Approved</button>
-                                <button class="filter-btn" data-filter="FLAGGED">Flagged</button>
-                                <button class="filter-btn" data-filter="FRAUD">Fraud</button>
-                            </div>
-                            <input type="text" class="search-input" id="tx-search" placeholder="Search by ID or Merchant...">
-                        </div>
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Amount</th>
-                                        <th>Type</th>
-                                        <th>Merchant</th>
-                                        <th>Risk Score</th>
-                                        <th>Status</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="full-table-body">
-                                    <!-- Rows injected by JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="glass-panel stagger-element" style="padding: 1rem;">
+                    <div class="hud-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Signature (ID)</th>
+                                    <th>Volume</th>
+                                    <th>Vector</th>
+                                    <th>Entity</th>
+                                    <th>Threat Level</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-table-body"></tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- SUBMIT PAGE -->
-                <div id="submit-page" class="page-content">
-                    <div class="grid two-col-grid">
-                        <div class="card">
-                            <h3 class="section-title">Test Fraud Engine</h3>
-                            <form id="submit-tx-form">
-                                <div class="grid two-col-grid" style="gap:1rem; margin-bottom:0;">
-                                    <div class="input-group">
-                                        <label>Amount (₹)*</label>
-                                        <input type="number" id="tx-amount" required min="1" step="0.01" value="1000">
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Transaction Type*</label>
-                                        <select id="tx-type" required>
-                                            <option value="PAYMENT">Payment</option>
-                                            <option value="TRANSFER">Transfer</option>
-                                            <option value="WITHDRAWAL">Withdrawal</option>
-                                            <option value="DEPOSIT">Deposit</option>
-                                        </select>
-                                    </div>
+            <!-- TEST ENGINE PAGE -->
+            <div id="submit-page" class="page-content">
+                <div class="grid split-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="glass-panel reticle tilt-card stagger-element" style="padding: 3rem;">
+                        <div class="scanner"></div>
+                        <div class="corner-bl"></div><div class="corner-br"></div>
+                        <h2 style="font-size: 1.5rem; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 2rem;">SIMULATION UPLINK</h2>
+                        
+                        <form id="submit-tx-form">
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="hud-input-group">
+                                    <input type="number" id="tx-amount" required min="1" step="0.01" placeholder="VOLUME (₹)">
                                 </div>
-                                <div class="input-group">
-                                    <label>Merchant Name</label>
-                                    <input type="text" id="tx-merchant" placeholder="e.g. Amazon">
+                                <div class="hud-input-group">
+                                    <select id="tx-type" required>
+                                        <option value="PAYMENT">PAYMENT</option>
+                                        <option value="TRANSFER">TRANSFER</option>
+                                        <option value="WITHDRAWAL">WITHDRAWAL</option>
+                                        <option value="DEPOSIT">DEPOSIT</option>
+                                    </select>
                                 </div>
-                                <div class="input-group">
-                                    <label>Location</label>
-                                    <input type="text" id="tx-location" placeholder="e.g. New York, VPN, Unknown">
-                                </div>
-                                <div class="grid two-col-grid" style="gap:1rem; margin-bottom:0;">
-                                    <div class="input-group">
-                                        <label>IP Address</label>
-                                        <input type="text" id="tx-ip" placeholder="e.g. 192.168.1.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label>Device ID</label>
-                                        <input type="text" id="tx-device" placeholder="e.g. dev_12345">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn" style="width:100%; margin-top:1rem;">Analyze Transaction</button>
-                            </form>
-                        </div>
-
-                        <div class="card" id="result-card" style="display:none; transition: background 0.3s;">
-                            <h3 class="section-title">Analysis Result</h3>
-                            <div style="text-align:center; margin: 2rem 0;">
-                                <div style="font-size: 3rem; font-weight:800; line-height:1;" id="result-score">0</div>
-                                <div style="font-size:0.875rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem;">Risk Score</div>
-                                
-                                <div class="progress-bg" style="max-width:200px; margin: 0 auto 1.5rem;">
-                                    <div class="progress-fill" id="result-meter" style="width: 0%;"></div>
-                                </div>
-                                
-                                <span class="badge" id="result-status" style="font-size:1rem; padding: 0.5rem 1rem;">STATUS</span>
                             </div>
+                            <div class="hud-input-group">
+                                <input type="text" id="tx-merchant" placeholder="TARGET ENTITY">
+                            </div>
+                            <div class="hud-input-group">
+                                <input type="text" id="tx-location" placeholder="GEO-COORDINATES (LOC)">
+                            </div>
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="hud-input-group">
+                                    <input type="text" id="tx-ip" placeholder="NODE IP">
+                                </div>
+                                <div class="hud-input-group">
+                                    <input type="text" id="tx-device" placeholder="HARDWARE SIGNATURE">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-glow pulse" style="margin-top: 1rem;">EXECUTE FRAUD ANALYSIS</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-panel reticle stagger-element" style="padding: 3rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="corner-bl"></div><div class="corner-br"></div>
+                        <h2 style="font-size: 1.5rem; letter-spacing: 4px; color: var(--text-muted); margin-bottom: 2rem;">ANALYSIS OUTPUT</h2>
+                        
+                        <div id="result-placeholder" style="color: var(--text-muted); font-size: 0.875rem; letter-spacing: 2px;">AWAITING DATA INJECTION...</div>
+                        
+                        <div id="result-card" class="hidden" style="width: 100%;">
+                            <canvas id="riskGauge" width="240" height="240" style="margin: 0 auto;"></canvas>
+                            <div style="font-size: 0.75rem; letter-spacing: 4px; color: var(--text-muted); margin-top: -30px; margin-bottom: 2rem;">THREAT LEVEL</div>
                             
-                            <div id="result-reasons-container" class="hidden">
-                                <h4 style="font-size:0.875rem; margin-bottom:0.5rem;">Flags Triggered:</h4>
-                                <div class="reasons-list">
-                                    <ul id="result-reasons"></ul>
-                                </div>
+                            <div id="result-status" class="hud-badge" style="font-size: 1.25rem; padding: 0.5rem 2rem; margin-bottom: 2rem;"></div>
+                            
+                            <div id="result-reasons-container" class="hidden" style="text-align: left; background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <div style="font-size: 0.75rem; letter-spacing: 2px; color: var(--danger); margin-bottom: 1rem;">DETECTED ANOMALIES:</div>
+                                <ul id="result-reasons" style="list-style: none; padding: 0; font-size: 0.875rem; color: #fff;"></ul>
                             </div>
                         </div>
                     </div>
                 </div>
-
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="tx-modal">
-        <div class="modal-content">
-            <button class="modal-close" id="close-modal">&times;</button>
-            <h3 class="modal-title">Transaction Details</h3>
-            
-            <div class="detail-row">
-                <span class="detail-label">Transaction ID</span>
-                <span class="detail-value" id="md-id" style="font-family:monospace; font-size:0.75rem;"></span>
+    <!-- MODAL SLIDE IN -->
+    <div class="modal-overlay" id="tx-overlay"></div>
+    <div class="hud-modal glass-panel" id="tx-modal" style="border-radius:0;">
+        <button class="modal-close" id="close-modal" style="font-size: 2rem; color: var(--accent-blue); text-shadow: 0 0 10px var(--accent-blue); float: right;">&times;</button>
+        <h3 style="font-size: 1.25rem; letter-spacing: 4px; color: var(--accent-blue); margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">DATA NODE DETAILS</h3>
+        
+        <div style="display:flex; flex-direction:column; gap: 1.5rem;">
+            <div>
+                <div style="font-size:0.65rem; color:var(--text-muted); letter-spacing:2px;">SIGNATURE ID</div>
+                <div class="mono" id="md-id" style="font-size:1.1rem; color:#fff; text-shadow: 0 0 5px #fff;"></div>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Amount</span>
-                <span class="detail-value" id="md-amount"></span>
+            <div>
+                <div style="font-size:0.65rem; color:var(--text-muted); letter-spacing:2px;">VOLUME</div>
+                <div class="mono" id="md-amount" style="font-size:1.5rem; font-weight:700;"></div>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Type</span>
-                <span class="detail-value" id="md-type"></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Merchant</span>
-                <span class="detail-value" id="md-merchant"></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Time</span>
-                <span class="detail-value" id="md-time"></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Risk Score</span>
-                <span class="detail-value">
-                    <span class="badge" id="md-score"></span>
-                </span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Status</span>
-                <span class="detail-value">
-                    <span class="badge" id="md-status"></span>
-                </span>
-            </div>
-            
-            <div id="md-reasons-container" class="hidden">
-                <h4 style="font-size:0.875rem; margin-top:1.5rem; margin-bottom:0.5rem;">Fraud Reasons</h4>
-                <div class="reasons-list">
-                    <ul id="md-reasons"></ul>
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div>
+                    <div style="font-size:0.65rem; color:var(--text-muted); letter-spacing:2px;">VECTOR</div>
+                    <div id="md-type" style="font-size:1rem;"></div>
                 </div>
+                <div>
+                    <div style="font-size:0.65rem; color:var(--text-muted); letter-spacing:2px;">ENTITY</div>
+                    <div id="md-merchant" style="font-size:1rem;"></div>
+                </div>
+            </div>
+            <div>
+                <div style="font-size:0.65rem; color:var(--text-muted); letter-spacing:2px;">TIMESTAMP</div>
+                <div id="md-time" style="font-size:0.875rem;"></div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.5); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <div style="font-size:0.75rem; letter-spacing:2px;">THREAT LEVEL</div>
+                    <div id="md-score" style="font-size:2rem; font-weight:700;"></div>
+                </div>
+                <div class="mini-progress" style="height: 10px;"><div id="md-score-fill" class="mini-progress-fill"></div></div>
+                <div style="margin-top: 1.5rem; text-align:center;">
+                    <div id="md-status" class="hud-badge" style="font-size: 1rem; padding: 0.5rem 2rem;"></div>
+                </div>
+            </div>
+            
+            <div id="md-reasons-container" class="hidden" style="margin-top: 1rem;">
+                <div style="font-size:0.65rem; color:var(--danger); letter-spacing:2px; margin-bottom: 0.5rem;">CRITICAL FLAGS</div>
+                <ul id="md-reasons" style="list-style: none; font-size: 0.875rem; background:rgba(255,0,0,0.1); border-left:2px solid var(--danger); padding: 1rem;"></ul>
             </div>
         </div>
     </div>
@@ -645,34 +525,202 @@
     <script>
         // CONFIG
         const API_URL = 'http://127.0.0.1:8000/api';
-        
-        // STATE
         let globalTransactions = [];
         let currentFilter = 'ALL';
-        
+
         // UTILS
         const showLoader = () => document.getElementById('loader').classList.remove('hidden');
         const hideLoader = () => document.getElementById('loader').classList.add('hidden');
         const formatMoney = (amount) => `₹${parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         const formatDate = (ds) => new Date(ds).toLocaleString();
-        const getToken = () => localStorage.getItem('fraud_access_token');
-        const getRiskColorClass = (score) => score >= 70 ? 'danger' : (score >= 40 ? 'warning' : 'success');
-        const getRiskFillClass = (score) => score >= 70 ? 'fill-red' : (score >= 40 ? 'fill-yellow' : 'fill-green');
+        const getToken = () => localStorage.getItem('fraud_token');
+        
+        const getRiskColor = (score) => score >= 70 ? 'var(--danger)' : (score >= 40 ? 'var(--warning)' : 'var(--success)');
+        const getStatusColor = (status) => status === 'APPROVED' ? 'var(--success)' : (status === 'FLAGGED' ? 'var(--warning)' : 'var(--danger)');
 
-        // API FETCH WRAPPER
+        // TOAST
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const color = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            toast.style.color = color;
+            toast.innerHTML = `<span style="font-size:1.5rem;">${type==='success'?'[OK]':'[ERR]'}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(0)'; }, 10);
+            setTimeout(() => {
+                toast.style.opacity = '0'; toast.style.transform = 'translateX(50px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // MOUSE PARTICLE TRAIL
+        const trail = [];
+        const pContainer = document.getElementById('particle-container');
+        for(let i=0; i<10; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            pContainer.appendChild(p);
+            trail.push({el: p, x: -100, y: -100});
+        }
+        let mouseX = -100, mouseY = -100;
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animateTrail() {
+            let x = mouseX, y = mouseY;
+            trail.forEach((p, index) => {
+                p.x += (x - p.x) * 0.3;
+                p.y += (y - p.y) * 0.3;
+                p.el.style.transform = `translate(${p.x-3}px, ${p.y-3}px) scale(${(10-index)/10})`;
+                x = p.x; y = p.y;
+            });
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        // 3D TILT EFFECT
+        function initTilt() {
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -5; 
+                    const rotateY = ((x - centerX) / centerX) * 5;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                });
+            });
+        }
+        initTilt();
+
+        // 3D GLOBE CANVAS
+        const globeCanvas = document.getElementById('globeCanvas');
+        if (globeCanvas) {
+            const gCtx = globeCanvas.getContext('2d');
+            let gWidth, gHeight, gTime = 0;
+            function resizeGlobe() { gWidth = globeCanvas.width = window.innerWidth; gHeight = globeCanvas.height = window.innerHeight; }
+            window.addEventListener('resize', resizeGlobe); resizeGlobe();
+
+            function drawGlobe() {
+                gCtx.clearRect(0,0, gWidth, gHeight);
+                const cx = gWidth/2; const cy = gHeight/2; const radius = Math.min(cx, cy) * 0.8;
+                gTime += 0.003;
+                gCtx.fillStyle = '#00d4ff';
+                
+                for(let lat=-Math.PI/2; lat<=Math.PI/2; lat+=Math.PI/10) {
+                    for(let lon=0; lon<Math.PI*2; lon+=Math.PI/16) {
+                        const r = radius * Math.cos(lat);
+                        const y = radius * Math.sin(lat);
+                        const x = r * Math.sin(lon + gTime);
+                        const z = r * Math.cos(lon + gTime);
+                        
+                        const perspective = 800 / (800 + z);
+                        const px = cx + x * perspective;
+                        const py = cy + y * perspective;
+                        
+                        gCtx.beginPath();
+                        gCtx.arc(px, py, z > 0 ? 1.5 : 0.5, 0, Math.PI*2);
+                        gCtx.fill();
+                    }
+                }
+                requestAnimationFrame(drawGlobe);
+            }
+            drawGlobe();
+        }
+
+        // RISK GAUGE
+        let gaugeAnimation;
+        function drawGauge(score) {
+            const canvas = document.getElementById('riskGauge');
+            const ctx = canvas.getContext('2d');
+            let currentScore = 0;
+            const cx = canvas.width/2; const cy = canvas.height/2; const radius = 90;
+            
+            if(gaugeAnimation) cancelAnimationFrame(gaugeAnimation);
+
+            function animateGauge() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, Math.PI*0.75, Math.PI*2.25);
+                ctx.lineWidth = 12;
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.stroke();
+                
+                const endAngle = Math.PI*0.75 + (currentScore/100) * (Math.PI*1.5);
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, Math.PI*0.75, endAngle);
+                const color = getRiskColor(currentScore);
+                ctx.strokeStyle = color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = color;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 50px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(Math.floor(currentScore), cx, cy);
+                
+                if(currentScore < score) {
+                    currentScore += (score - currentScore) * 0.08 + 0.5;
+                    if(currentScore > score) currentScore = score;
+                    gaugeAnimation = requestAnimationFrame(animateGauge);
+                }
+            }
+            animateGauge();
+        }
+
+        // COUNT UP ANIMATION
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                // ease out quad
+                const easeOut = progress * (2 - progress);
+                const current = progress === 1 ? end : start + (end - start) * easeOut;
+                
+                if(obj.id === 'stat-avg-risk') {
+                    obj.innerHTML = current.toFixed(1);
+                } else {
+                    obj.innerHTML = Math.floor(current).toLocaleString();
+                }
+                
+                if (progress < 1) window.requestAnimationFrame(step);
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // STAGGER ELEMENTS
+        function triggerStagger(container) {
+            const elements = container.querySelectorAll('.stagger-element');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.animation = 'none';
+                setTimeout(() => {
+                    el.style.animation = `fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards`;
+                }, index * 100);
+            });
+        }
+
+        // API
         async function apiFetch(endpoint, options = {}) {
             const token = getToken();
-            const headers = {
-                'Content-Type': 'application/json',
-                ...options.headers
-            };
+            const headers = { 'Content-Type': 'application/json', ...options.headers };
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
             const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
             
             if (response.status === 401) {
-                logout();
-                throw new Error("Unauthorized");
+                logout(false);
+                throw new Error("UNAUTHORIZED ACCESS DETECTED");
             }
             
             const data = await response.json();
@@ -683,58 +731,60 @@
         // INIT
         document.addEventListener('DOMContentLoaded', () => {
             if (getToken()) {
-                document.getElementById('user-name-display').textContent = localStorage.getItem('fraud_username') || 'User';
-                document.getElementById('user-avatar').textContent = (localStorage.getItem('fraud_username') || 'U').charAt(0).toUpperCase();
-                switchView('app-view');
-                loadDashboardData();
+                document.getElementById('user-name-display').textContent = localStorage.getItem('fraud_username') || 'OPERATIVE';
+                switchView('app-view', 'dashboard-page');
             } else {
-                switchView('login-view');
+                switchView('auth-bg');
+                switchAuthView('login');
             }
             setupEventListeners();
         });
 
-        // VIEW NAVIGATION
-        function switchView(viewId) {
+        function switchView(viewId, pageId = null) {
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            const view = document.getElementById(viewId);
+            view.classList.add('active');
             
-            // Toggle particle canvas visibility
-            const canvas = document.getElementById('particleCanvas');
-            if (canvas) {
-                if (viewId === 'login-view' || viewId === 'register-view') {
-                    canvas.style.display = 'block';
-                } else {
-                    canvas.style.display = 'none';
-                }
+            if(viewId === 'auth-bg') {
+                document.getElementById('particle-container').style.display = 'block';
+            } else {
+                document.getElementById('particle-container').style.display = 'none';
             }
+
+            if(pageId) navigateTo(pageId);
+        }
+
+        function switchAuthView(type) {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            const target = document.getElementById(`${type}-view`);
+            target.classList.remove('hidden');
+            triggerStagger(target);
         }
 
         function navigateTo(pageId) {
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(el => { if(el.dataset.target) el.classList.remove('active'); });
             
-            document.getElementById(pageId).classList.add('active');
-            const navItem = document.querySelector(`.nav-item[data-target="${pageId}"]`);
+            const page = document.getElementById(pageId);
+            page.classList.add('active');
+            const navItem = document.querySelector(`.nav-link[data-target="${pageId}"]`);
             if (navItem) navItem.classList.add('active');
-            
-            document.getElementById('current-page-title').textContent = navItem ? navItem.textContent.trim() : 'Dashboard';
-            
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
+
+            triggerStagger(page);
 
             if (pageId === 'dashboard-page') loadDashboardData();
             if (pageId === 'transactions-page') loadTransactionsPage();
-            if (pageId === 'submit-page') resetSubmitForm();
+            if (pageId === 'submit-page') {
+                document.getElementById('submit-tx-form').reset();
+                document.getElementById('result-card').classList.add('hidden');
+                document.getElementById('result-placeholder').classList.remove('hidden');
+            }
         }
 
-        // EVENT LISTENERS
         function setupEventListeners() {
-            // Registration
             document.getElementById('register-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                showLoader();
-                document.getElementById('register-error').style.display = 'none';
+                e.preventDefault(); showLoader();
                 try {
                     const payload = {
                         username: document.getElementById('reg-user').value,
@@ -742,97 +792,54 @@
                         phone_number: document.getElementById('reg-phone').value,
                         password: document.getElementById('reg-pass').value
                     };
-                    
                     const res = await fetch(`${API_URL}/auth/register/`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(payload)
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
                     });
-                    
                     const data = await res.json();
-                    
-                    if (!res.ok) {
-                        let errMsg = "Error registering account.";
-                        if (data && typeof data === 'object') {
-                            const errs = [];
-                            Object.keys(data).forEach(key => {
-                                let msg = data[key];
-                                if(Array.isArray(msg)) msg = msg.join(' ');
-                                errs.push(`${key}: ${msg}`);
-                            });
-                            if (errs.length) errMsg = errs.join(' | ');
-                        }
-                        throw new Error(errMsg);
-                    }
-                    
+                    if (!res.ok) throw new Error(JSON.stringify(data));
                     document.getElementById('register-form').reset();
-                    switchView('login-view');
-                    document.getElementById('login-success').style.display = 'block';
-                    
-                } catch (err) {
-                    const errEl = document.getElementById('register-error');
-                    errEl.textContent = err.message || "Error registering account.";
-                    errEl.style.display = 'block';
-                } finally {
-                    hideLoader();
-                }
+                    switchAuthView('login');
+                    showToast('REGISTRATION AUTHORIZED', 'success');
+                } catch (err) { showToast('REGISTRATION FAILED', 'error'); } finally { hideLoader(); }
             });
 
-            // Login
             document.getElementById('login-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                showLoader();
-                document.getElementById('login-error').style.display = 'none';
+                e.preventDefault(); showLoader();
                 try {
                     const username = document.getElementById('login-user').value;
                     const res = await fetch(`${API_URL}/auth/token/`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            username: username,
-                            password: document.getElementById('login-pass').value
-                        })
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ username: username, password: document.getElementById('login-pass').value })
                     });
-                    if (!res.ok) throw new Error("Invalid credentials");
+                    if (!res.ok) throw new Error("ACCESS DENIED");
                     const data = await res.json();
-                    localStorage.setItem('fraud_access_token', data.access);
+                    localStorage.setItem('fraud_token', data.access);
                     localStorage.setItem('fraud_username', username);
-                    
                     document.getElementById('user-name-display').textContent = username;
-                    document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
-                    
                     document.getElementById('login-pass').value = '';
-                    switchView('app-view');
-                    loadDashboardData();
-                } catch (err) {
-                    document.getElementById('login-error').style.display = 'block';
-                } finally {
-                    hideLoader();
-                }
+                    switchView('app-view', 'dashboard-page');
+                    showToast(`WELCOME, OP ${username}`, 'success');
+                } catch (err) { showToast('ACCESS DENIED. INVALID CREDENTIALS.', 'error'); } finally { hideLoader(); }
             });
 
-            // Logout
-            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('logout-btn').addEventListener('click', () => logout(true));
 
-            // Nav Clicks
-            document.querySelectorAll('.nav-item').forEach(item => {
+            document.querySelectorAll('.nav-link[data-target]').forEach(item => {
                 item.addEventListener('click', () => navigateTo(item.dataset.target));
             });
 
-            // Mobile menu
-            document.getElementById('sidebar-toggle').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('open');
-            });
-
-            // Modal close
             document.getElementById('close-modal').addEventListener('click', () => {
                 document.getElementById('tx-modal').classList.remove('active');
+                document.getElementById('tx-overlay').classList.remove('active');
+            });
+            document.getElementById('tx-overlay').addEventListener('click', () => {
+                document.getElementById('tx-modal').classList.remove('active');
+                document.getElementById('tx-overlay').classList.remove('active');
             });
 
-            // Transactions filters & search
-            document.querySelectorAll('.filter-btn').forEach(btn => {
+            document.querySelectorAll('.filter-pill').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     currentFilter = e.target.dataset.filter;
                     renderTransactionsTable();
@@ -840,10 +847,8 @@
             });
             document.getElementById('tx-search').addEventListener('input', renderTransactionsTable);
 
-            // Submit Test Transaction
             document.getElementById('submit-tx-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                showLoader();
+                e.preventDefault(); showLoader();
                 try {
                     const payload = {
                         amount: document.getElementById('tx-amount').value,
@@ -853,96 +858,77 @@
                         ip_address: document.getElementById('tx-ip').value,
                         device_id: document.getElementById('tx-device').value,
                     };
-                    
-                    // Remove empty optional fields
                     Object.keys(payload).forEach(k => { if(!payload[k]) delete payload[k]; });
 
-                    const result = await apiFetch('/transactions/create/', {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
+                    const result = await apiFetch('/transactions/create/', { method: 'POST', body: JSON.stringify(payload) });
                     
-                    displaySubmitResult(result);
-                } catch (err) {
-                    alert('Error creating transaction: ' + (err.data ? JSON.stringify(err.data) : err.message));
-                } finally {
-                    hideLoader();
-                }
+                    document.getElementById('result-placeholder').classList.add('hidden');
+                    document.getElementById('result-card').classList.remove('hidden');
+                    
+                    drawGauge(result.risk_score);
+                    
+                    const statusEl = document.getElementById('result-status');
+                    statusEl.textContent = result.status;
+                    statusEl.style.color = getStatusColor(result.status);
+                    statusEl.style.borderColor = getStatusColor(result.status);
+
+                    const reasonsCont = document.getElementById('result-reasons-container');
+                    if (result.fraud_reasons && result.fraud_reasons.length > 0) {
+                        reasonsCont.classList.remove('hidden');
+                        document.getElementById('result-reasons').innerHTML = result.fraud_reasons.map(r => `<li style="margin-bottom:0.5rem;"><span style="margin-right:0.5rem;">⚠</span>${r}</li>`).join('');
+                    } else { reasonsCont.classList.add('hidden'); }
+                    
+                    showToast('ANALYSIS COMPLETE', 'success');
+                } catch (err) { showToast('ANALYSIS FAILED', 'error'); } finally { hideLoader(); }
             });
         }
 
-        function logout() {
-            localStorage.removeItem('fraud_access_token');
+        function logout(showMsg = false) {
+            localStorage.removeItem('fraud_token');
             localStorage.removeItem('fraud_username');
-            switchView('login-view');
+            switchView('auth-bg');
+            switchAuthView('login');
+            if (showMsg) showToast('CONNECTION TERMINATED', 'success');
         }
 
-        // DASHBOARD DATA FETCH
         async function loadDashboardData() {
             showLoader();
             try {
-                const [stats, txs] = await Promise.all([
-                    apiFetch('/stats/'),
-                    apiFetch('/transactions/')
-                ]);
+                const [stats, txs] = await Promise.all([ apiFetch('/stats/'), apiFetch('/transactions/') ]);
                 
-                // Update stats
-                document.getElementById('stat-total').textContent = stats.total_transactions;
-                document.getElementById('stat-fraud').textContent = stats.total_fraud;
-                document.getElementById('stat-flagged').textContent = stats.total_flagged;
-                document.getElementById('stat-avg-risk').textContent = stats.average_risk_score;
+                animateValue(document.getElementById('stat-total'), 0, stats.total_transactions, 1000);
+                animateValue(document.getElementById('stat-fraud'), 0, stats.total_fraud, 1000);
+                animateValue(document.getElementById('stat-flagged'), 0, stats.total_flagged, 1000);
+                animateValue(document.getElementById('stat-avg-risk'), 0, stats.average_risk_score, 1000);
 
                 globalTransactions = txs;
-
                 renderRecentTransactions(txs.slice(0, 5));
-                renderTypeChart(txs);
-                renderTopRisky(txs);
-
-            } catch (err) {
-                console.error(err);
-            } finally {
-                hideLoader();
-            }
+                renderTypeList(txs);
+                renderRiskList(txs);
+            } catch (err) { showToast("DATA SYNC FAILURE", 'error'); } finally { hideLoader(); }
         }
 
-        // TRANSACTIONS PAGE FETCH
         async function loadTransactionsPage() {
             showLoader();
             try {
                 globalTransactions = await apiFetch('/transactions/');
                 renderTransactionsTable();
-            } catch (err) {
-                console.error(err);
-            } finally {
-                hideLoader();
-            }
+            } catch (err) { showToast("DATA SYNC FAILURE", 'error'); } finally { hideLoader(); }
         }
 
-        // RENDERING
         function renderRecentTransactions(txs) {
-            const tbody = document.getElementById('recent-table-body');
-            tbody.innerHTML = '';
-            
-            if(txs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">No recent transactions</td></tr>';
-                return;
-            }
-
-            txs.forEach(tx => {
+            const tbody = document.getElementById('recent-table-body'); tbody.innerHTML = '';
+            if(txs.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">NO DATA</td></tr>'; return; }
+            txs.forEach((tx, i) => {
                 const tr = document.createElement('tr');
-                tr.className = 'clickable-row';
                 tr.onclick = () => showModal(tx);
-                
-                const scoreClass = getRiskColorClass(tx.risk_score);
-                const statusClass = tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger');
-
+                const sColor = getStatusColor(tx.status);
                 tr.innerHTML = `
-                    <td style="font-family:monospace; font-size:0.75rem">${tx.transaction_id.substring(0,8)}...</td>
-                    <td style="font-weight:600;">${formatMoney(tx.amount)}</td>
+                    <td class="mono">${tx.transaction_id.substring(0,8)}</td>
+                    <td class="mono">${formatMoney(tx.amount)}</td>
                     <td>${tx.transaction_type}</td>
-                    <td><span class="badge ${scoreClass}">${tx.risk_score}</span></td>
-                    <td><span class="badge ${statusClass}">${tx.status}</span></td>
-                    <td style="color:var(--text-muted)">${new Date(tx.created_at).toLocaleDateString()}</td>
+                    <td style="color:${getRiskColor(tx.risk_score)}">${tx.risk_score}</td>
+                    <td><span class="hud-badge" style="color:${sColor}; border-color:${sColor}">${tx.status}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -951,301 +937,123 @@
         function renderTransactionsTable() {
             const tbody = document.getElementById('full-table-body');
             const searchStr = document.getElementById('tx-search').value.toLowerCase();
-            
             let filtered = globalTransactions;
             
-            // Filter by type
             if (currentFilter === 'APPROVED') filtered = filtered.filter(t => t.status === 'APPROVED');
             if (currentFilter === 'FLAGGED') filtered = filtered.filter(t => t.status === 'FLAGGED' && !t.is_fraud);
             if (currentFilter === 'FRAUD') filtered = filtered.filter(t => t.is_fraud);
-            
-            // Filter by search
-            if (searchStr) {
-                filtered = filtered.filter(t => 
-                    t.transaction_id.toLowerCase().includes(searchStr) || 
-                    (t.merchant_name && t.merchant_name.toLowerCase().includes(searchStr))
-                );
-            }
+            if (searchStr) filtered = filtered.filter(t => t.transaction_id.toLowerCase().includes(searchStr) || (t.merchant_name && t.merchant_name.toLowerCase().includes(searchStr)));
 
             tbody.innerHTML = '';
-            if(filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem; color:var(--text-muted)">No transactions found matching criteria</td></tr>';
-                return;
-            }
+            if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">NO MATCHING DATA</td></tr>'; return; }
 
             filtered.forEach(tx => {
                 const tr = document.createElement('tr');
-                tr.className = 'clickable-row';
                 tr.onclick = () => showModal(tx);
-                
-                const scoreClass = getRiskColorClass(tx.risk_score);
-                const statusClass = tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger');
-
+                const sColor = getStatusColor(tx.status);
+                const rColor = getRiskColor(tx.risk_score);
                 tr.innerHTML = `
-                    <td style="font-family:monospace; font-size:0.75rem">${tx.transaction_id.substring(0,8)}...</td>
-                    <td style="font-weight:600;">${formatMoney(tx.amount)}</td>
+                    <td class="mono">${tx.transaction_id.substring(0,8)}</td>
+                    <td class="mono">${formatMoney(tx.amount)}</td>
                     <td>${tx.transaction_type}</td>
-                    <td>${tx.merchant_name || '-'}</td>
-                    <td><span class="badge ${scoreClass}">${tx.risk_score}</span></td>
-                    <td><span class="badge ${statusClass}">${tx.status}</span></td>
-                    <td style="color:var(--text-muted); font-size:0.75rem;">${formatDate(tx.created_at)}</td>
+                    <td>${tx.merchant_name || 'UNKNOWN'}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="color:${rColor}">${tx.risk_score}</span>
+                            <div class="mini-progress" style="width:50px;"><div class="mini-progress-fill" style="width:${tx.risk_score}%; background:${rColor}; box-shadow:0 0 10px ${rColor}"></div></div>
+                        </div>
+                    </td>
+                    <td><span class="hud-badge" style="color:${sColor}; border-color:${sColor}">${tx.status}</span></td>
+                    <td style="font-size:0.65rem; color:var(--text-muted)">${formatDate(tx.created_at)}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function renderTypeChart(txs) {
-            const container = document.getElementById('type-chart');
-            container.innerHTML = '';
-            
+        function renderTypeList(txs) {
+            const container = document.getElementById('type-list'); container.innerHTML = '';
             const types = { 'PAYMENT': 0, 'TRANSFER': 0, 'WITHDRAWAL': 0, 'DEPOSIT': 0 };
-            txs.forEach(t => { if(types[t.transaction_type] !== undefined) types[t.transaction_type]++; });
+            let max = 1;
+            txs.forEach(t => { if(types[t.transaction_type] !== undefined) { types[t.transaction_type]++; if(types[t.transaction_type]>max) max=types[t.transaction_type]; }});
             
-            const max = Math.max(...Object.values(types), 1); // Avoid div by 0
-            
-            Object.keys(types).forEach(type => {
-                const heightPct = (types[type] / max) * 100;
+            Object.keys(types).forEach((type, i) => {
+                const width = (types[type]/max)*100;
                 container.innerHTML += `
-                    <div class="bar-wrapper">
-                        <div style="font-size:0.75rem; font-weight:600; margin-bottom:4px;">${types[type]}</div>
-                        <div class="bar" style="height: ${heightPct}%;"></div>
-                        <div class="bar-label">${type.substring(0,3)}</div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; letter-spacing:1px; margin-bottom:0.5rem;">
+                            <span>${type}</span><span class="mono">${types[type]}</span>
+                        </div>
+                        <div class="mini-progress"><div class="mini-progress-fill" style="width:0; background:var(--accent-blue); transition: width 1s ease ${(i+1)*0.1}s"></div></div>
                     </div>
                 `;
             });
+            
+            setTimeout(() => {
+                Object.keys(types).forEach((type, i) => {
+                    const fills = container.querySelectorAll('.mini-progress-fill');
+                    fills[i].style.width = `${(types[type]/max)*100}%`;
+                });
+            }, 100);
         }
 
-        function renderTopRisky(txs) {
-            const container = document.getElementById('risk-list');
-            container.innerHTML = '';
-            
-            const risky = [...txs].sort((a, b) => b.risk_score - a.risk_score).slice(0, 5);
-            
-            if(risky.length === 0) {
-                container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:1rem;">No transactions yet</div>';
-                return;
-            }
+        function renderRiskList(txs) {
+            const container = document.getElementById('risk-list'); container.innerHTML = '';
+            const risky = [...txs].sort((a, b) => b.risk_score - a.risk_score).slice(0, 4);
+            if(risky.length === 0) { container.innerHTML = '<div style="color:var(--text-muted);">NO DATA</div>'; return; }
 
-            risky.forEach(tx => {
-                const fillClass = getRiskFillClass(tx.risk_score);
+            risky.forEach((tx, i) => {
+                const rColor = getRiskColor(tx.risk_score);
                 container.innerHTML += `
-                    <div class="risk-item" onclick="showModal(${JSON.stringify(tx).replace(/"/g, '&quot;')})" style="cursor:pointer">
-                        <div class="risk-header">
-                            <span>${formatMoney(tx.amount)} <span style="color:var(--text-muted); font-size:0.75rem; font-family:monospace">(${tx.transaction_id.substring(0,8)})</span></span>
-                            <span style="font-weight:600">${tx.risk_score}/100</span>
+                    <div style="margin-bottom: 1.5rem; cursor:pointer;" onclick="showModal(${JSON.stringify(tx).replace(/"/g, '&quot;')})">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; letter-spacing:1px; margin-bottom:0.5rem;">
+                            <span class="mono">${tx.transaction_id.substring(0,8)}</span><span style="color:${rColor}">${tx.risk_score}</span>
                         </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill ${fillClass}" style="width: ${tx.risk_score}%"></div>
-                        </div>
+                        <div class="mini-progress"><div class="mini-progress-fill" style="width:0; background:${rColor}; box-shadow:0 0 10px ${rColor}; transition: width 1s ease ${(i+1)*0.1}s"></div></div>
                     </div>
                 `;
             });
+            
+            setTimeout(() => {
+                risky.forEach((tx, i) => {
+                    const fills = container.querySelectorAll('.mini-progress-fill');
+                    fills[i].style.width = `${tx.risk_score}%`;
+                });
+            }, 100);
         }
 
-        // MODAL
         function showModal(tx) {
             document.getElementById('md-id').textContent = tx.transaction_id;
             document.getElementById('md-amount').textContent = formatMoney(tx.amount);
             document.getElementById('md-type').textContent = tx.transaction_type;
-            document.getElementById('md-merchant').textContent = tx.merchant_name || 'N/A';
-            document.getElementById('md-time').textContent = tx.created_at ? formatDate(tx.created_at) : 'Just now';
+            document.getElementById('md-merchant').textContent = tx.merchant_name || 'UNKNOWN';
+            document.getElementById('md-time').textContent = tx.created_at ? formatDate(tx.created_at) : 'LIVE';
             
+            const rColor = getRiskColor(tx.risk_score);
             const scoreEl = document.getElementById('md-score');
             scoreEl.textContent = tx.risk_score;
-            scoreEl.className = `badge ${getRiskColorClass(tx.risk_score)}`;
+            scoreEl.style.color = rColor;
             
+            const fillEl = document.getElementById('md-score-fill');
+            fillEl.style.background = rColor;
+            fillEl.style.boxShadow = `0 0 10px ${rColor}`;
+            fillEl.style.width = '0%';
+            setTimeout(() => { fillEl.style.width = `${tx.risk_score}%`; }, 100);
+            
+            const sColor = getStatusColor(tx.status);
             const statusEl = document.getElementById('md-status');
             statusEl.textContent = tx.status;
-            statusEl.className = `badge ${tx.status === 'APPROVED' ? 'success' : (tx.status === 'FLAGGED' && !tx.is_fraud ? 'warning' : 'danger')}`;
+            statusEl.style.color = sColor;
+            statusEl.style.borderColor = sColor;
 
             const reasonsContainer = document.getElementById('md-reasons-container');
             const reasonsList = document.getElementById('md-reasons');
-            
             if (tx.fraud_reasons && tx.fraud_reasons.length > 0) {
                 reasonsContainer.classList.remove('hidden');
-                reasonsList.innerHTML = tx.fraud_reasons.map(r => `<li>${r}</li>`).join('');
-            } else {
-                reasonsContainer.classList.add('hidden');
-            }
+                reasonsList.innerHTML = tx.fraud_reasons.map(r => `<li style="margin-bottom:0.5rem;">⚠ ${r}</li>`).join('');
+            } else { reasonsContainer.classList.add('hidden'); }
 
+            document.getElementById('tx-overlay').classList.add('active');
             document.getElementById('tx-modal').classList.add('active');
-        }
-
-        // SUBMIT ENGINE TEST
-        function resetSubmitForm() {
-            document.getElementById('submit-tx-form').reset();
-            document.getElementById('result-card').style.display = 'none';
-        }
-
-        function displaySubmitResult(result) {
-            const card = document.getElementById('result-card');
-            card.style.display = 'block';
-            
-            document.getElementById('result-score').textContent = result.risk_score;
-            
-            const meter = document.getElementById('result-meter');
-            meter.style.width = '0%';
-            setTimeout(() => { meter.style.width = `${result.risk_score}%`; }, 100);
-            
-            meter.className = `progress-fill ${getRiskFillClass(result.risk_score)}`;
-            
-            const statusBadge = document.getElementById('result-status');
-            statusBadge.textContent = result.status;
-            statusBadge.className = `badge ${result.status === 'APPROVED' ? 'success' : (result.status === 'FLAGGED' && !result.is_fraud ? 'warning' : 'danger')}`;
-
-            // Color card background subtly
-            if (result.is_fraud || result.risk_score >= 70) {
-                card.style.backgroundColor = 'var(--danger-bg)';
-                card.style.borderColor = 'var(--danger)';
-            } else if (result.risk_score >= 40) {
-                card.style.backgroundColor = 'var(--warning-bg)';
-                card.style.borderColor = 'var(--warning)';
-            } else {
-                card.style.backgroundColor = 'var(--success-bg)';
-                card.style.borderColor = 'var(--success)';
-            }
-
-            const reasonsCont = document.getElementById('result-reasons-container');
-            if (result.fraud_reasons && result.fraud_reasons.length > 0) {
-                reasonsCont.classList.remove('hidden');
-                document.getElementById('result-reasons').innerHTML = result.fraud_reasons.map(r => `<li>${r}</li>`).join('');
-            } else {
-                reasonsCont.classList.add('hidden');
-            }
-        }
-
-        // PARTICLE BACKGROUND
-        const particleCanvas = document.getElementById('particleCanvas');
-        if (particleCanvas) {
-            const ctx = particleCanvas.getContext('2d');
-            let particles = [];
-            const particleCount = 100;
-
-            let mouse = {
-                x: null,
-                y: null,
-                radius: 120
-            };
-
-            window.addEventListener('mousemove', function(event) {
-                mouse.x = event.clientX;
-                mouse.y = event.clientY;
-            });
-            
-            window.addEventListener('mouseout', function() {
-                mouse.x = null;
-                mouse.y = null;
-            });
-
-            window.addEventListener('click', function(event) {
-                if (particleCanvas.style.display !== 'none') {
-                    for (let i = 0; i < 10; i++) {
-                        let p = new Particle(event.clientX, event.clientY);
-                        p.vx = (Math.random() - 0.5) * 8;
-                        p.vy = (Math.random() - 0.5) * 8;
-                        particles.push(p);
-                    }
-                    if (particles.length > 200) {
-                        particles.splice(0, particles.length - 200);
-                    }
-                }
-            });
-
-            function resizeCanvas() {
-                particleCanvas.width = window.innerWidth;
-                particleCanvas.height = window.innerHeight;
-            }
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            class Particle {
-                constructor(x, y) {
-                    this.x = x !== undefined ? x : Math.random() * particleCanvas.width;
-                    this.y = y !== undefined ? y : Math.random() * particleCanvas.height;
-                    this.size = Math.random() * 2 + 2; // 2px to 4px
-                    this.baseSpeedX = (Math.random() - 0.5) * 1.5;
-                    this.baseSpeedY = (Math.random() - 0.5) * 1.5;
-                    this.vx = this.baseSpeedX;
-                    this.vy = this.baseSpeedY;
-                    this.opacity = Math.random() * 0.5 + 0.1;
-                    this.fadeSpeed = Math.random() * 0.005 + 0.001;
-                    this.fadeDirection = Math.random() > 0.5 ? 1 : -1;
-                }
-                update() {
-                    // Mouse repel logic
-                    if (mouse.x != null && mouse.y != null) {
-                        const dx = this.x - mouse.x;
-                        const dy = this.y - mouse.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < mouse.radius) {
-                            const force = (mouse.radius - dist) / mouse.radius;
-                            // run away from cursor
-                            this.vx += (dx / dist) * force * 0.6;
-                            this.vy += (dy / dist) * force * 0.6;
-                        }
-                    }
-
-                    // Return slowly to normal drift (friction)
-                    this.vx += (this.baseSpeedX - this.vx) * 0.05;
-                    this.vy += (this.baseSpeedY - this.vy) * 0.05;
-
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    
-                    // Bounce off screen edges
-                    if (this.x < 0 || this.x > particleCanvas.width) {
-                        this.baseSpeedX *= -1;
-                        this.vx *= -1;
-                        this.x = Math.max(0, Math.min(this.x, particleCanvas.width));
-                    }
-                    if (this.y < 0 || this.y > particleCanvas.height) {
-                        this.baseSpeedY *= -1;
-                        this.vy *= -1;
-                        this.y = Math.max(0, Math.min(this.y, particleCanvas.height));
-                    }
-                    
-                    // Fade in and out
-                    this.opacity += this.fadeSpeed * this.fadeDirection;
-                    if (this.opacity >= 0.8) this.fadeDirection = -1;
-                    if (this.opacity <= 0.1) this.fadeDirection = 1;
-                }
-                draw() {
-                    let ratio = this.x / particleCanvas.width;
-                    ratio = Math.max(0, Math.min(1, ratio));
-                    // Dark grey/black (#222) on left to red/orange (#ff4500) on right
-                    const r = Math.floor(34 + ratio * (255 - 34));
-                    const g = Math.floor(34 + ratio * (69 - 34));
-                    const b = Math.floor(34 + ratio * (0 - 34));
-
-                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity})`;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            function initParticles() {
-                particles = [];
-                for (let i = 0; i < particleCount; i++) {
-                    particles.push(new Particle());
-                }
-            }
-
-            function animateParticles() {
-                ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
-                
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-                
-                requestAnimationFrame(animateParticles);
-            }
-
-            initParticles();
-            animateParticles();
         }
     </script>
 </body>
